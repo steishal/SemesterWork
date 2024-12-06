@@ -1,15 +1,10 @@
 package com.servlet;
 import com.dao.UserDao;
 import com.models.User;
-import com.service.UserService;
 
 
-
-import com.dao.UserDao;
-import com.models.User;
-import com.service.UserService;
-import com.util.DbException;
-import com.util.PasswordUtils;
+import com.utils.DbException;
+import com.utils.PasswordUtils;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -23,24 +18,23 @@ import java.security.NoSuchAlgorithmException;
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
     private UserDao userDao;
-    private UserService userService;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+        // Получение объекта UserDao из контекста
         userDao = (UserDao) getServletContext().getAttribute("userDao");
-        userService = (UserService) getServletContext().getAttribute("userService");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Направляем пользователя на страницу регистрации
-        req.getRequestDispatcher("register.html").forward(req, resp);
+        // Перенаправляем пользователя на страницу регистрации
+        req.getRequestDispatcher("/WEB-INF/register.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Получение параметров формы
+        // Считываем параметры формы
         String username = req.getParameter("username");
         String password = req.getParameter("password");
         String email = req.getParameter("email");
@@ -48,43 +42,43 @@ public class RegisterServlet extends HttpServlet {
         String vkLink = req.getParameter("vkLink");
         String tgLink = req.getParameter("tgLink");
 
-        // Валидация данных
+        // Валидация обязательных полей
         if (username == null || password == null || email == null || phoneNumber == null ||
                 username.isEmpty() || password.isEmpty() || email.isEmpty() || phoneNumber.isEmpty()) {
             req.setAttribute("error", "Все обязательные поля должны быть заполнены.");
-            req.getRequestDispatcher("register.html").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/register.jsp").forward(req, resp);
             return;
         }
 
         try {
-            // Проверка на существование пользователя с таким именем
+            // Проверка, существует ли пользователь с таким именем
             if (userDao.getUserByUsername(username) != null) {
                 req.setAttribute("error", "Пользователь с таким именем уже существует.");
-                req.getRequestDispatcher("register.html").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/register.jsp").forward(req, resp);
                 return;
             }
 
-            // Хеширование пароля перед сохранением
+            // Хешируем пароль перед сохранением
             String hashedPassword = PasswordUtils.hashPassword(password);
 
-            // Создание объекта User
+            // Создаём объект пользователя
             User user = new User();
             user.setUsername(username);
-            user.setPassword(hashedPassword); // Сохраняем захешированный пароль
+            user.setPassword(hashedPassword); // Сохраняем хешированный пароль
             user.setEmail(email);
             user.setPhoneNumber(phoneNumber);
             user.setVkLink(vkLink);
             user.setTgLink(tgLink);
 
-            // Сохранение пользователя в базе данных
+            // Сохраняем пользователя в базе данных
             userDao.saveUser(user);
-            resp.sendRedirect("success.html"); // Перенаправление на страницу успеха
 
+            // Перенаправление на страницу успеха
+            resp.sendRedirect(req.getContextPath() + "/login");
         } catch (DbException | NoSuchAlgorithmException e) {
             req.setAttribute("error", "Ошибка при сохранении пользователя: " + e.getMessage());
-            req.getRequestDispatcher("register.html").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/register.jsp").forward(req, resp);
         }
     }
-
 }
 

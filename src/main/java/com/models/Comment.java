@@ -1,28 +1,47 @@
 package com.models;
 
-import java.sql.Date;
-
 public class Comment {
 
     private String id;
     private String content;
     private String authorId;
     private String postId;
-    private Date createDate;
+    private String createDate;
+    private String authorName; // Новое поле
+
+    public Comment() {
+
+    }
+
+    // Геттеры и сеттеры для нового поля
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
 
     @Override
     public String toString() {
-        return String.valueOf(id);
+        return "Comment{" +
+                "id='" + id + '\'' +
+                ", postId='" + postId + '\'' +
+                ", authorId='" + authorId + '\'' +
+                ", authorName='" + authorName + '\'' +  // Добавлено имя автора
+                ", content='" + content + '\'' +
+                ", createDate='" + createDate + '\'' +
+                '}';
     }
 
-    public Comment(String content, String authorId, String postId, Date createDate) {
+    public Comment(String content, String authorId, String postId, String createDate) {
         this.content = content;
         this.authorId = authorId;
         this.postId = postId;
         this.createDate = createDate;
     }
 
-    public Comment(String id,String content, String authorId, String postId, Date createDate) {
+    public Comment(String id, String content, String authorId, String postId, String createDate) {
         this.id = id;
         this.content = content;
         this.authorId = authorId;
@@ -62,11 +81,12 @@ public class Comment {
         this.postId = postId;
     }
 
-    public Date getCreateDate() {
+    public String getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }
 }
+

@@ -5,37 +5,54 @@ import com.models.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.utils.PasswordUtils;
+
+import com.models.User;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class UserService {
-    private UserDao userDao;
+    private final UserDao userDao;
 
-    // Конструктор с параметром UserDao
+    // Конструктор принимает UserDao
     public UserService(UserDao userDao) {
         this.userDao = userDao;
     }
-
-    // Метод для аутентификации пользователя
-    public void auth(User user, HttpServletRequest req, HttpServletResponse resp) {
-        req.getSession().setAttribute("user", user);
+    public boolean verifyPassword(String inputPassword, String storedHashedPassword) {
+        try {
+            return PasswordUtils.verifyPassword(inputPassword, storedHashedPassword);
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при проверке пароля", e);
+        }
     }
 
-    // Проверка, является ли пользователь аутентифицированным
+    public void auth(User user, HttpServletRequest req, HttpServletResponse resp) {
+        req.getSession().setAttribute("authenticatedUser", user);
+    }
+
+
+    // Проверка, аутентифицирован ли пользователь
     public boolean isNonAnonymous(HttpServletRequest req, HttpServletResponse resp) {
-        // Проверка на наличие активной сессии и объекта пользователя
-        return req.getSession(false) != null && req.getSession(false).getAttribute("user") != null;
+        return req.getSession(false) != null && req.getSession(false).getAttribute("authenticatedUser") != null;
     }
 
     // Получение текущего пользователя из сессии
     public User getUser(HttpServletRequest req, HttpServletResponse res) {
         if (req.getSession(false) == null) {
-            return null; // Если сессии нет, возвращаем null
+            return null; // Если сессия отсутствует
         }
-        Object userObj = req.getSession(false).getAttribute("user");
+        Object userObj = req.getSession(false).getAttribute("authenticatedUser");
         if (userObj instanceof User) {
-            return (User) userObj; // Если объект существует и это User, возвращаем его
+            return (User) userObj;
         }
-        return null; // Если объект отсутствует или неверного типа, возвращаем null
+        return null; // Если объект отсутствует или имеет неправильный тип
     }
 
+    public void logout(HttpServletRequest req) {
+        if (req.getSession(false) != null) {
+            req.getSession(false).invalidate(); // Уничтожение сессии
+        }
+    }
 }
+
 

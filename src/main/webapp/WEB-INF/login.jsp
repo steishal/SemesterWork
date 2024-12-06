@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,18 +56,15 @@
 </head>
 <body>
 <h2>Register</h2>
-<form action="/register" method="POST" novalidate>
-    <!-- Username -->
-    <label for="username">Username:</label>
+<form action="${pageContext.request.contextPath}/login" method="POST" novalidate>
+
+    <label for="email">Email:</label>
     <input
-            type="text"
-            id="username"
-            name="username"
+            type="email"
+            id="email"
+            name="email"
             required
-            minlength="3"
-            maxlength="20"
-            pattern="^[a-zA-Z0-9_]+$"
-            title="Username must be 3-20 characters long and contain only letters, numbers, and underscores.">
+            title="Enter a valid email address.">
 
     <!-- Password -->
     <label for="password">Password:</label>
@@ -78,50 +76,12 @@
             minlength="6"
             title="Password must be at least 6 characters long.">
 
-    <!-- Email -->
-    <label for="email">Email:</label>
-    <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            title="Enter a valid email address.">
-
-    <!-- Phone -->
-    <label for="phone">Phone Number:</label>
-    <input
-            type="tel"
-            id="phone"
-            name="phone"
-            required
-            pattern="\+?[0-9]{10,15}"
-            title="Enter a valid phone number with 10-15 digits. You can start with '+'.">
-
-    <!-- VK Link -->
-    <label for="vkLink">VK Link:</label>
-    <input
-            type="url"
-            id="vkLink"
-            name="vkLink"
-            pattern="https?://.*"
-            title="Enter a valid URL starting with http:// or https://">
-
-    <!-- Telegram Link -->
-    <label for="tgLink">Telegram Link:</label>
-    <input
-            type="url"
-            id="tgLink"
-            name="tgLink"
-            pattern="https?://.*"
-            title="Enter a valid URL starting with http:// or https://">
-
     <!-- Submit Button -->
-    <button type="submit">Register</button>
+    <button type="submit">Login</button>
 
     <!-- Error Message (if any) -->
     <div class="error">
-        <!-- Серверная ошибка будет отображаться здесь -->
-        ${error != null ? error : ""}
+        <%= request.getAttribute("message") != null ? request.getAttribute("message") : "" %>
     </div>
 </form>
 
@@ -137,6 +97,3 @@
 </script>
 </body>
 </html>
-
-
-

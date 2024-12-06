@@ -1,4 +1,4 @@
-package com.util;
+package com.utils;
 
 public class DbException extends Exception {
     public DbException() {
