@@ -1,80 +1,59 @@
 package com.filter;
 
-import com.service.UserService;
-
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
-
-
-import com.service.UserService;
-
-import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
-// Фильтр аутентификации, который применяется ко всем запросам (/*)
 @WebFilter("/*")
 public class AuthFilter implements Filter {
-    // Пути, доступ к которым возможен только для аутентифицированных пользователей
-    private static final String[] SECURED_PATHS = {"/profile"};
+    private static final Logger logger = Logger.getLogger(AuthFilter.class.getName());
+    private static final Set<String> SECURED_PATHS = new HashSet<>();
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // Метод для инициализации фильтра, если это необходимо
+    static {
+        SECURED_PATHS.add("/profile"); // Добавьте защищённые пути
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // Приведение общего интерфейса ServletRequest к HttpServletRequest
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        // Получение объекта UserService из контекста приложения
-        UserService userService = (UserService) req.getServletContext().getAttribute("userService");
-
-        // Получение запрашиваемого пути
         String path = req.getServletPath();
+        HttpSession session = req.getSession(false);
 
-        // Проверка, является ли запрашиваемый путь защищённым
-        if (isSecuredPath(path) && !userService.isNonAnonymous(req, res)) {
-            // Если пользователь не аутентифицирован, перенаправляем его на страницу входа
-            res.sendRedirect(req.getContextPath() + "/signin");
+        // Проверяем наличие userId в сессии
+        Object userId = (session != null) ? session.getAttribute("userId") : null;
+
+        // Если защищенный путь и пользователя нет в сессии, перенаправляем на страницу входа
+        if (isSecuredPath(path) && userId == null) {
+            logger.warning("Неавторизованный доступ к защищённому пути: " + path);
+            res.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        // Добавление текущего пользователя в атрибуты запроса для удобства работы в сервлетах
-        req.setAttribute("user", userService.getUser(req, res));
-
-        // Передача управления следующему фильтру или сервлету
         chain.doFilter(req, res);
     }
 
     @Override
     public void destroy() {
-        // Метод для освобождения ресурсов фильтра, если это необходимо
     }
 
-    // Проверяет, входит ли указанный путь в список защищённых
     private boolean isSecuredPath(String path) {
-        for (String securedPath : SECURED_PATHS) {
-            // Если путь начинается с защищённого, возвращаем true
-            if (path.startsWith(securedPath)) {
-                return true;
-            }
-        }
-        return false;
+        return SECURED_PATHS.stream().anyMatch(path::startsWith);
     }
 }
+
+
 
 

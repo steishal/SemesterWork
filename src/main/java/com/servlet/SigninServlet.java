@@ -4,13 +4,10 @@ import com.dao.UserDao;
 import com.models.User;
 import com.service.UserService;
 import com.utils.DbException;
-
+import javax.servlet.http.*;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet("/login")
@@ -28,7 +25,6 @@ public class SigninServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Переадресация на страницу входа
         req.getRequestDispatcher("/WEB-INF/login.jsp").forward(req, resp);
     }
 
@@ -55,14 +51,25 @@ public class SigninServlet extends HttpServlet {
                 return;
             }
 
-            // Аутентифицируем пользователя
-            userService.auth(user, req, resp);
+            // Аутентификация через сессию
+            HttpSession session = req.getSession();
+            session.setAttribute("userId", user.getId());  // Сохраняем ID пользователя в сессии
+            session.setAttribute("username", user.getUsername());  // Сохраняем имя пользователя в сессии
+            session.setMaxInactiveInterval(30 * 60);  // Время жизни сессии (30 минут)
 
-            // Перенаправление на главную страницу
+            // Создаем куку для запоминания пользователя
+            Cookie userCookie = new Cookie("user", user.getUsername());
+            userCookie.setMaxAge(60 * 60 * 24 * 30);  // Срок действия куки (30 дней)
+            userCookie.setHttpOnly(true);  // Защита от JavaScript доступа
+            resp.addCookie(userCookie);
+
+            // Перенаправление на профиль
             resp.sendRedirect(req.getContextPath() + "/profile");
         } catch (DbException e) {
             throw new ServletException("Ошибка при аутентификации пользователя", e);
         }
     }
 }
+
+
 

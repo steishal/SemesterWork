@@ -1,9 +1,13 @@
 package com.models;
 
-import java.sql.Array;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.sql.Date;
 import java.util.ArrayList;
 
+@Data
+@NoArgsConstructor
 public class Post {
 
     private Integer id;
@@ -13,70 +17,14 @@ public class Post {
     private Date createDate;
     private ArrayList<String> images;
 
-    public Post(Integer userId, String content, Date createDate) {
-        this.id = null;
-        this.userId = userId;
-        this.content = content;
-        this.createDate = createDate;
-    }
-
-    public Post(Integer id, Integer userId, String content, Date createDate) {
-        this.id = id;
-        this.userId = userId;
-        this.content = content;
-        this.createDate = createDate;
-    }
-
     @Override
     public String toString() {
-        return String.valueOf(id);
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Integer categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public ArrayList<String> getImages() {
-        return images;
-    }
-
-    public void setImages(ArrayList<String> images) {
-        this.images = images;
+        return "Post{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", categoryId=" + categoryId +
+                ", content='" + content + '\'' +
+                '}';
     }
 }
+

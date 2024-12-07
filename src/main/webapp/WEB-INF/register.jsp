@@ -57,6 +57,7 @@
 <body>
 <h2>Register</h2>
 <form action="${pageContext.request.contextPath}/register" method="POST" novalidate>
+  <input type="hidden" name="csrf_token" value="${csrf_token}">
   <!-- Username -->
   <label for="username">Username:</label>
   <input

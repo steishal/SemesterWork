@@ -2,14 +2,10 @@ package com.service;
 
 import com.dao.UserDao;
 import com.models.User;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.utils.PasswordUtils;
 
-import com.models.User;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class UserService {
     private final UserDao userDao;

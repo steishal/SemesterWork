@@ -1,17 +1,13 @@
 package com.servlet;
+
 import com.dao.UserDao;
 import com.models.User;
-
-
 import com.utils.DbException;
 import com.utils.PasswordUtils;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -22,13 +18,12 @@ public class RegisterServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        // Получение объекта UserDao из контекста
+        // Получаем объект UserDao из контекста
         userDao = (UserDao) getServletContext().getAttribute("userDao");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Перенаправляем пользователя на страницу регистрации
         req.getRequestDispatcher("/WEB-INF/register.jsp").forward(req, resp);
     }
 
@@ -73,7 +68,13 @@ public class RegisterServlet extends HttpServlet {
             // Сохраняем пользователя в базе данных
             userDao.saveUser(user);
 
-            // Перенаправление на страницу успеха
+            // Не создаем сессию здесь, пусть пользователь сделает это при входе
+            // Создаем куку с именем пользователя для автозаполнения при следующем визите
+            Cookie userCookie = new Cookie("username", username);  // Создаем куку с именем пользователя
+            userCookie.setMaxAge(60 * 60 * 24);  // Устанавливаем срок действия куки (1 день)
+            resp.addCookie(userCookie);  // Добавляем куку в ответ
+
+            // Перенаправление на страницу входа
             resp.sendRedirect(req.getContextPath() + "/login");
         } catch (DbException | NoSuchAlgorithmException e) {
             req.setAttribute("error", "Ошибка при сохранении пользователя: " + e.getMessage());
@@ -81,4 +82,6 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 }
+
+
 

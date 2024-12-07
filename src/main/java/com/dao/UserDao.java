@@ -25,29 +25,22 @@ public class UserDao {
         String sql = "SELECT * FROM Users WHERE name = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         try  {
             connection = connectionProvider.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             // Устанавливаем параметр имени в SQL-запросе
             preparedStatement.setString(1, username);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                // Если пользователь найден, преобразуем результат в объект User
-                if (resultSet.next()) {
-                    return mapResultSetToUser(resultSet);
-                }
+            resultSet = preparedStatement.executeQuery();
+            // Если пользователь найден, преобразуем результат в объект User
+            if (resultSet.next()) {
+                return mapResultSetToUser(resultSet);
             }
         } catch (SQLException e) {
             // Генерируем пользовательское исключение в случае ошибки
             throw new DbException("Error while fetching user by username", e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace(); // Логируем ошибку закрытия
-                }
-            }
+            closeResources(preparedStatement, resultSet);
             // Возвращаем соединение в пул, если оно было получено
             if (connection != null) {
                 connectionProvider.releaseConnection(connection);
@@ -64,29 +57,21 @@ public class UserDao {
         String sql = "SELECT * FROM Users WHERE email = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         try {
             connection = connectionProvider.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             // Устанавливаем параметр имени в SQL-запросе
             preparedStatement.setString(1, email);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                // Если пользователь найден, преобразуем результат в объект User
-                if (resultSet.next()) {
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
                     return mapResultSetToUser(resultSet);
-                }
             }
         } catch (SQLException e) {
             // Генерируем пользовательское исключение в случае ошибки
             throw new DbException("Error while fetching user by username", e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace(); // Логируем ошибку закрытия
-                }
-            }
+            closeResources(preparedStatement, resultSet);
             // Возвращаем соединение в пул, если оно было получено
             if (connection != null) {
                 connectionProvider.releaseConnection(connection);
@@ -100,12 +85,6 @@ public class UserDao {
 
     // Сохранение нового пользователя
     public void saveUser(User user) throws DbException {
-        System.out.println(user.getUsername());
-        System.out.println(user.getVkLink());
-        System.out.println(user.getTgLink());
-        System.out.println(user.getEmail());
-        System.out.println(user.getPhoneNumber());
-        System.out.println(user.getPassword());
         // SQL-запрос для вставки нового пользователя
         String sql = "INSERT INTO Users (name, vk_link, telegram_link, email, phone_number, password_hash) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -131,13 +110,7 @@ public class UserDao {
         } catch (SQLException e) {
             throw new DbException("Error saving user", e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace(); // Логируем ошибку закрытия
-                }
-            }
+            closeResources(preparedStatement, null);
             // Возвращаем соединение в пул, если оно было получено
             if (connection != null) {
                 connectionProvider.releaseConnection(connection);
@@ -169,29 +142,22 @@ public class UserDao {
         String sql = "SELECT * FROM Users WHERE user_id = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         try {
             connection = connectionProvider.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             // Устанавливаем ID в запросе
             preparedStatement.setInt(1, id);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                // Если пользователь найден, преобразуем результат в объект User
-                if (resultSet.next()) {
+            resultSet = preparedStatement.executeQuery();
+            // Если пользователь найден, преобразуем результат в объект User
+            if (resultSet.next()) {
                     return mapResultSetToUser(resultSet);
-                }
             }
         } catch (SQLException e) {
             // Обрабатываем исключение
             throw new DbException("Error fetching user by ID", e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace(); // Логируем ошибку закрытия
-                }
-            }
+            closeResources(preparedStatement, resultSet);
             // Возвращаем соединение в пул, если оно было получено
             if (connection != null) {
                 connectionProvider.releaseConnection(connection);
@@ -222,13 +188,7 @@ public class UserDao {
             // Обрабатываем ошибку
             throw new DbException("Error fetching all users", e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace(); // Логируем ошибку закрытия
-                }
-            }
+            closeResources(preparedStatement, null);
             // Возвращаем соединение в пул, если оно было получено
             if (connection != null) {
                 connectionProvider.releaseConnection(connection);
@@ -267,13 +227,7 @@ public class UserDao {
             // Генерируем исключение в случае ошибки
             throw new DbException("Error updating user", e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace(); // Логируем ошибку закрытия
-                }
-            }
+            closeResources(preparedStatement, null);
             // Возвращаем соединение в пул, если оно было получено
             if (connection != null) {
                 connectionProvider.releaseConnection(connection);
@@ -303,13 +257,7 @@ public class UserDao {
             // Обрабатываем ошибку
             throw new DbException("Error deleting user", e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace(); // Логируем ошибку закрытия
-                }
-            }
+            closeResources(preparedStatement, null);
             // Возвращаем соединение в пул, если оно было получено
             if (connection != null) {
                 connectionProvider.releaseConnection(connection);
@@ -326,37 +274,30 @@ public class UserDao {
                 "FROM Users WHERE name = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         try {
             connection = connectionProvider.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             // Устанавливаем имя пользователя в запросе
             preparedStatement.setString(1, username);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                // Если пользователь найден, проверяем пароль
-                if (resultSet.next()) {
-                    // Получаем хэш пароля из базы данных
-                    String storedHash = resultSet.getString("password_hash");
-
-                    // Проверяем совпадение введенного пароля с хэшем
-                    if (PasswordUtils.verifyPassword(password, storedHash)) {
-                        return mapResultSetToUser(resultSet);
-                    } else {
-                        return null; // Неверный пароль
-                    }
+            resultSet = preparedStatement.executeQuery();
+            // Если пользователь найден, проверяем пароль
+            if (resultSet.next()) {
+                // Получаем хэш пароля из базы данных
+                String storedHash = resultSet.getString("password_hash");
+                // Проверяем совпадение введенного пароля с хэшем
+                if (PasswordUtils.verifyPassword(password, storedHash)) {
+                    return mapResultSetToUser(resultSet);
+                } else {
+                    return null; // Неверный пароль
                 }
             }
         } catch (SQLException e) {
             // Генерируем исключение в случае ошибки
             throw new DbException("Error while getting user by username and password", e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace(); // Логируем ошибку закрытия
-                }
-            }
+            closeResources(preparedStatement, resultSet);
             // Возвращаем соединение в пул, если оно было получено
             if (connection != null) {
                 connectionProvider.releaseConnection(connection);
@@ -364,6 +305,24 @@ public class UserDao {
         }
         // Возвращаем null, если пользователь не найден
         return null;
+    }
+
+    // Вспомогательный метод для закрытия ресурсов
+    private void closeResources(PreparedStatement preparedStatement, ResultSet resultSet) {
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 
