@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Data
@@ -12,10 +13,11 @@ public class User {
     private Integer id;
     private String username;
     private String password;
+    private ArrayList<Integer> followers;
+    private ArrayList<Integer> subscriptions;
 
     @NonNull
     private String email = "";
-    @NonNull
     private String phoneNumber = "";
     private String vkLink = "";
     private String tgLink = "";

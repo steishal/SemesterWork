@@ -55,7 +55,7 @@
     </style>
 </head>
 <body>
-<h2>Register</h2>
+<h2>Login</h2>
 <form action="${pageContext.request.contextPath}/login" method="POST" novalidate>
     <input type="hidden" name="csrf_token" value="${csrf_token}">
     <label for="email">Email:</label>

@@ -10,17 +10,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import javax.servlet.ServletContext;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
-    private UserDao userDao;
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        // Получаем объект UserDao из контекста
-        userDao = (UserDao) getServletContext().getAttribute("userDao");
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -29,6 +22,14 @@ public class RegisterServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // Получаем объекты из контекста
+        ServletContext context = getServletContext();
+        UserDao userDao = (UserDao) context.getAttribute("userDao");
+
+        if (userDao == null) {
+            throw new ServletException("userDao is not initialized in the servlet context.");
+        }
+
         // Считываем параметры формы
         String username = req.getParameter("username");
         String password = req.getParameter("password");
@@ -46,7 +47,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         try {
-            // Проверка, существует ли пользователь с таким именем
+            // Проверяем, существует ли пользователь с таким именем
             if (userDao.getUserByUsername(username) != null) {
                 req.setAttribute("error", "Пользователь с таким именем уже существует.");
                 req.getRequestDispatcher("/WEB-INF/register.jsp").forward(req, resp);
@@ -69,12 +70,11 @@ public class RegisterServlet extends HttpServlet {
             userDao.saveUser(user);
 
             // Не создаем сессию здесь, пусть пользователь сделает это при входе
-            // Создаем куку с именем пользователя для автозаполнения при следующем визите
-            Cookie userCookie = new Cookie("username", username);  // Создаем куку с именем пользователя
-            userCookie.setMaxAge(60 * 60 * 24);  // Устанавливаем срок действия куки (1 день)
-            resp.addCookie(userCookie);  // Добавляем куку в ответ
+            // Создаем куки с именем пользователя для автозаполнения при следующем визите
+            Cookie userCookie = new Cookie("username", username);
+            userCookie.setMaxAge(60 * 60 * 24);
+            resp.addCookie(userCookie);
 
-            // Перенаправление на страницу входа
             resp.sendRedirect(req.getContextPath() + "/login");
         } catch (DbException | NoSuchAlgorithmException e) {
             req.setAttribute("error", "Ошибка при сохранении пользователя: " + e.getMessage());
@@ -82,6 +82,7 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 }
+
 
 
 

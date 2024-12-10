@@ -1,16 +1,14 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: anastasia
-  Date: 06.12.2024
-  Time: 12:25
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
 <head>
-    <title>Title</title>
+    <title>User Profile</title>
 </head>
 <body>
-
+<h1>Profile of ${user.username}</h1>
+<p><strong>Email:</strong> ${user.email}</p>
+<p><strong>Phone Number:</strong> ${user.phoneNumber}</p>
+<p><strong>VK Link:</strong> <a href="${user.vkLink}" target="_blank">${user.vkLink}</a></p>
+<p><strong>Telegram Link:</strong> <a href="${user.tgLink}" target="_blank">${user.tgLink}</a></p>
 </body>
 </html>

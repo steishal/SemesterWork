@@ -1,24 +1,20 @@
 package com.models;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Data
+@NoArgsConstructor
 public class Category {
 
-    private String categoryName;
-    private Integer id;
-
-    public Category(String categoryName, Integer id) {
-        this.categoryName = categoryName;
-        this.id = id;
-    }
-
+    private Integer categoryId;
+    private String name;
     @Override
     public String toString() {
-        return String.valueOf(id);
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-    public Integer getId() {
-        return id;
+        return "Category{" +
+                "categoryId=" + categoryId +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

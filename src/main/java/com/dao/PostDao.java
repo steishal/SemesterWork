@@ -3,15 +3,21 @@ package com.dao;
 import com.models.Post;
 import com.utils.ConnectionProvider;
 import com.utils.DbException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import javax.sql.DataSource;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PostDao {
+    private static final Logger log = LogManager.getLogger(PostDao.class);
     private final ConnectionProvider connectionProvider;
 
     public PostDao(ConnectionProvider connectionProvider) {
@@ -21,148 +27,232 @@ public class PostDao {
     // Метод для получения поста по ID
     public Post getPostById(int id) throws DbException {
         String sql = "SELECT * FROM Posts WHERE post_id = ?";
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = connectionProvider.getConnection();
-            preparedStatement = connection.prepareStatement(sql);
-            // Устанавливаем ID в запросе
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
             preparedStatement.setInt(1, id);
-            resultSet = preparedStatement.executeQuery();
-            // Если пост найден, преобразуем результат в объект Post
-            if (resultSet.next()) {
-                return mapResultSetToPost(resultSet);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapResultSetToPost(resultSet);
+                }
             }
         } catch (SQLException e) {
-            // Обрабатываем исключение
             throw new DbException("Error fetching post by ID", e);
-        } finally {
-            closeResources(preparedStatement, resultSet);
-            if (connection != null) {
-                connectionProvider.releaseConnection(connection);
-            }
         }
-        // Если пост не найден, возвращаем null
         return null;
     }
 
-    public void savePost(Post post) throws DbException {
-        // SQL-запрос для вставки нового поста
-        String sql = "INSERT INTO Posts (user_id, category_id, content, create_date) VALUES (?, ?, ?, NOW())";
+    private boolean isCategoryValid(int categoryId) throws DbException {
+        String sql = "SELECT 1 FROM Categories WHERE category_id = ?";
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            // Получаем соединение из пула
-            connection = connectionProvider.getConnection();
-            preparedStatement = connection.prepareStatement(sql);
-
-            // Устанавливаем параметры запроса
-            preparedStatement.setInt(1, post.getUserId());
-            preparedStatement.setInt(2, post.getCategoryId());
-            preparedStatement.setString(3, post.getContent());
-
-            // Выполняем запрос на добавление
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DbException("Error saving post", e);
-        } finally {
-            closeResources(preparedStatement, null);
-            if (connection != null) {
-                connectionProvider.releaseConnection(connection);
+            preparedStatement.setInt(1, categoryId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
             }
+        } catch (SQLException e) {
+            throw new DbException("Failed to validate category ID: " + categoryId, e);
         }
     }
 
-    private Post mapResultSetToPost(ResultSet resultSet) throws SQLException {
-        // Создаем объект Post и заполняем его данными из ResultSet
-        Post post = new Post();
-        post.setId(resultSet.getInt("post_id"));
-        post.setUserId(resultSet.getInt("user_id"));
-        post.setCategoryId(resultSet.getInt("category_id"));
-        post.setContent(resultSet.getString("content"));
-        post.setCreateDate(resultSet.getDate("create_date"));
+    public Post savePost(Post post, List<InputStream> imageStreams, List<String> imageNames, String uploadDirPath) throws DbException {
+        String sqlPost = "INSERT INTO Posts (user_id, category_id, content) VALUES (?, ?, ?)";
+        String sqlImage = "INSERT INTO PostImages (post_id, image_path) VALUES (?, ?)";
+
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement postStatement = connection.prepareStatement(sqlPost, Statement.RETURN_GENERATED_KEYS)) {
+                postStatement.setInt(1, post.getUserId());
+                postStatement.setInt(2, post.getCategoryId());
+                postStatement.setString(3, post.getContent());
+                postStatement.executeUpdate();
+
+                try (ResultSet keys = postStatement.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        post.setId(keys.getInt(1));
+                    }
+                }
+
+                if (imageStreams != null && !imageStreams.isEmpty()) {
+                    try (PreparedStatement imageStatement = connection.prepareStatement(sqlImage)) {
+                        Path uploadDir = Paths.get(uploadDirPath, String.valueOf(post.getId()));
+                        if (!Files.exists(uploadDir)) {
+                            Files.createDirectories(uploadDir);
+                        }
+
+                        for (int i = 0; i < imageStreams.size(); i++) {
+                            String imageName = imageNames.get(i);
+                            InputStream imageStream = imageStreams.get(i);
+
+                            Path imagePath = uploadDir.resolve(imageName);
+                            Files.copy(imageStream, imagePath, StandardCopyOption.REPLACE_EXISTING);
+
+                            imageStatement.setInt(1, post.getId());
+                            imageStatement.setString(2, imagePath.toString());
+                            imageStatement.addBatch();
+                        }
+
+                        imageStatement.executeBatch();
+                    }
+                }
+
+                connection.commit();
+            } catch (SQLException | IOException e) {
+                connection.rollback();
+                throw new DbException("Error saving post, transaction rolled back", e);
+            }
+
+        } catch (SQLException e) {
+            throw new DbException("Error with database operation", e);
+        }
+
         return post;
     }
 
-    // Метод для получения всех постов
-    public List<Post> getAllPosts() throws DbException {
-        String sql = "SELECT * FROM Posts";
-        Connection connection = null;
-        List<Post> posts = new ArrayList<>();
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = connectionProvider.getConnection();
-            preparedStatement = connection.prepareStatement(sql);
-            resultSet = preparedStatement.executeQuery();
+    private Post mapResultSetToPost(ResultSet resultSet) throws SQLException, DbException {
+        Post post = new Post();
+        post.setId(resultSet.getInt("post_id"));
+        post.setUserId(resultSet.getInt("user_id"));
+        post.setCategoryId(resultSet.wasNull() ? null : resultSet.getInt("category_id"));
+        post.setContent(resultSet.getString("content"));
+        post.setCreateDate(resultSet.getDate("created_at"));
+        post.setImages(getImagesForPost(post.getId()));
+        return post;
+    }
 
-            // Итерация по результатам и преобразование каждой записи в объект Post
-            while (resultSet.next()) {
-                posts.add(mapResultSetToPost(resultSet));
+    public List<String> getImagesForPost(int postId) throws DbException {
+        String sql = "SELECT image_path FROM PostImages WHERE post_id = ?";
+        List<String> images = new ArrayList<>();
+
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, postId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    images.add(resultSet.getString("image_path"));
+                }
             }
         } catch (SQLException e) {
-            throw new DbException("Error fetching all posts", e);
-        } finally {
-            closeResources(preparedStatement, resultSet);
-            if (connection != null) {
-                connectionProvider.releaseConnection(connection);
-            }
+            throw new DbException("Error fetching images for post", e);
         }
+
+        return images;
+    }
+
+    public List<Post> getAllPosts() throws DbException {
+        String sqlPosts = "SELECT * FROM Posts";
+        String sqlImages = "SELECT post_id, image_path FROM PostImages WHERE post_id IN (%s)";
+
+        List<Post> posts = new ArrayList<>();
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement postStatement = connection.prepareStatement(sqlPosts);
+             ResultSet resultSetPosts = postStatement.executeQuery()) {
+
+            List<Integer> postIds = new ArrayList<>();
+            Map<Integer, List<String>> postImagesMap = new HashMap<>();
+
+            // Извлечение всех постов
+            while (resultSetPosts.next()) {
+                Post post = new Post();
+                post.setId(resultSetPosts.getInt("post_id"));
+                post.setUserId(resultSetPosts.getInt("user_id"));
+                post.setCategoryId(resultSetPosts.getInt("category_id"));
+                post.setContent(resultSetPosts.getString("content"));
+                post.setCreateDate(resultSetPosts.getDate("created_at"));
+
+                posts.add(post);
+                postIds.add(post.getId());
+            }
+
+            if (!postIds.isEmpty()) {
+                String idsPlaceholder = postIds.stream().map(id -> "?").collect(Collectors.joining(","));
+                String formattedSql = String.format(sqlImages, idsPlaceholder);
+
+                try (PreparedStatement imageStatement = connection.prepareStatement(formattedSql)) {
+                    for (int i = 0; i < postIds.size(); i++) {
+                        imageStatement.setInt(i + 1, postIds.get(i));
+                    }
+
+                    try (ResultSet resultSetImages = imageStatement.executeQuery()) {
+                        while (resultSetImages.next()) {
+                            int postId = resultSetImages.getInt("post_id"); // Получаем post_id
+                            String imagePath = resultSetImages.getString("image_path");
+                            postImagesMap.computeIfAbsent(postId, k -> new ArrayList<>())
+                                    .add(imagePath);
+                        }
+                    }
+                }
+            }
+
+            // Присваиваем изображения каждому посту
+            for (Post post : posts) {
+                post.setImages(postImagesMap.getOrDefault(post.getId(), Collections.emptyList()));
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error fetching posts with images", e);
+        }
+
         return posts;
     }
+
+
+
 
     public void updatePost(Post post) throws DbException {
         String sql = "UPDATE Posts SET user_id = ?, category_id = ?, content = ? WHERE post_id = ?";
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = connectionProvider.getConnection();
-            preparedStatement = connection.prepareStatement(sql);
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            // Устанавливаем параметры запроса
             preparedStatement.setInt(1, post.getUserId());
-            preparedStatement.setInt(2, post.getCategoryId());
+            if (post.getCategoryId() == null) {
+                preparedStatement.setNull(2, Types.INTEGER);
+            } else {
+                preparedStatement.setInt(2, post.getCategoryId());
+            }
+
             preparedStatement.setString(3, post.getContent());
             preparedStatement.setInt(4, post.getId());
 
-            // Выполняем обновление
-            preparedStatement.executeUpdate();
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new DbException("No post found with provided ID for update.");
+            }
         } catch (SQLException e) {
             throw new DbException("Error updating post", e);
-        } finally {
-            closeResources(preparedStatement, null);
-            if (connection != null) {
-                connectionProvider.releaseConnection(connection);
-            }
         }
     }
 
     public void deletePost(int id) throws DbException {
-        String sql = "DELETE FROM Posts WHERE post_id = ?";
+        String checkSql = "SELECT COUNT(*) FROM Posts WHERE post_id = ?";
+        String deleteSql = "DELETE FROM Posts WHERE post_id = ?";
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = connectionProvider.getConnection();
-            preparedStatement = connection.prepareStatement(sql);
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false); // Отключаем автокоммит для транзакции
 
-            // Устанавливаем ID для удаления
-            preparedStatement.setInt(1, id);
-
-            // Выполняем запрос
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DbException("Error deleting post", e);
-        } finally {
-            closeResources(preparedStatement, null);
-            if (connection != null) {
-                connectionProvider.releaseConnection(connection);
+            try (PreparedStatement checkStatement = connection.prepareStatement(checkSql)) {
+                checkStatement.setInt(1, id);
+                try (ResultSet resultSet = checkStatement.executeQuery()) {
+                    if (resultSet.next() && resultSet.getInt(1) == 0) {
+                        throw new DbException("No post found with provided ID for deletion.");
+                    }
+                }
             }
+
+            try (PreparedStatement deleteStatement = connection.prepareStatement(deleteSql)) {
+                deleteStatement.setInt(1, id);
+                deleteStatement.executeUpdate();
+            }
+
+            connection.commit(); // Подтверждаем транзакцию
+        } catch (SQLException e) {
+            throw new DbException("Error deleting post, transaction rolled back", e);
         }
     }
+
 
     // Вспомогательный метод для закрытия ресурсов
     private void closeResources(PreparedStatement preparedStatement, ResultSet resultSet) {
@@ -181,6 +271,5 @@ public class PostDao {
             }
         }
     }
-
 }
 

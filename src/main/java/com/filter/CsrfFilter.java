@@ -24,6 +24,12 @@ public class CsrfFilter extends HttpFilter {
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws IOException, ServletException {
 
+        String uri = req.getRequestURI();
+        if (uri.equals(req.getContextPath() + "/createPost")) {
+            chain.doFilter(req, res);
+            return;
+        }
+
         String method = req.getMethod();
 
         try {

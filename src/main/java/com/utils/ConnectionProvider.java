@@ -1,94 +1,66 @@
 package com.utils;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.EmptyStackException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 public class ConnectionProvider {
-    private static ConnectionProvider instance;
 
-    private Stack<Connection> connections; // Пул свободных соединений
-    private Set<Connection> usedConnections; // Занятые соединения
-
-    private static final int MAX_CONNECTIONS = 10; // Максимальное количество соединений
+    private HikariDataSource dataSource;
 
     private static final String DB_URL = "jdbc:mysql://localhost:3306/webapp";
     private static final String DB_USERNAME = "anastasia";
     private static final String DB_PASSWORD = "201710202814003621";
 
-    // Приватный конструктор
     private ConnectionProvider() {
-        connections = new Stack<>();
-        usedConnections = new HashSet<>();
-
         try {
-            // Регистрация драйвера MySQL
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl(DB_URL);
+            config.setUsername(DB_USERNAME);
+            config.setPassword(DB_PASSWORD);
+            config.setMaximumPoolSize(10);
+            config.setMinimumIdle(2);
+            config.setIdleTimeout(30000);
+            config.setConnectionTimeout(2000);
+            config.setLeakDetectionThreshold(5000);
 
-            // Создание пула соединений
-            for (int i = 0; i < MAX_CONNECTIONS; i++) {
-                Connection connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
-                connections.push(connection);
-            }
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            // Явно указываем драйвер
+            config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+
+            dataSource = new HikariDataSource(config);
+        } catch (Exception e) {
+            System.err.println("Ошибка при настройке пула соединений: " + e.getMessage());
         }
     }
 
-    // Метод для получения единственного экземпляра
-    public static synchronized ConnectionProvider getInstance() {
-        if (instance == null) {
-            synchronized (ConnectionProvider.class) {
-                if (instance == null) {
-                    instance = new ConnectionProvider();
-                }
-            }
-        }
-        return instance;
+    private static class SingletonHelper {
+        private static final ConnectionProvider INSTANCE = new ConnectionProvider();
     }
 
-    // Получение соединения из пула
-    public synchronized Connection getConnection() throws SQLException {
-        Connection connection;
+    public static ConnectionProvider getInstance() {
+        return SingletonHelper.INSTANCE;
+    }
+
+    public Connection getConnection() throws SQLException {
         try {
-            connection = connections.pop(); // Забираем соединение из пула
-            usedConnections.add(connection); // Помещаем его в список занятых
-        } catch (EmptyStackException e) {
-            // Если пул пуст, создаём новое соединение
-            connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
-        }
-        return connection;
-    }
-
-    // Освобождение соединения
-    public synchronized void releaseConnection(Connection connection) {
-        if (usedConnections.remove(connection)) {
-            connections.push(connection); // Возвращаем соединение в пул
+            return dataSource.getConnection();
+        } catch (SQLException ex) {
+            System.err.println("Ошибка при получении соединения: " + ex.getMessage());
+            throw ex;
         }
     }
 
-    // Закрытие всех соединений
-    public void destroy() {
-        for (Connection connection : usedConnections) {
+    public void close() {
+        if (dataSource != null) {
             try {
-                connection.rollback();
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (Connection connection : connections) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                dataSource.close();
+            } catch (Exception e) {
+                System.err.println("Ошибка при закрытии пула соединений: " + e.getMessage());
             }
         }
     }
 }
+
+
 
