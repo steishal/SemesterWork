@@ -16,7 +16,9 @@ public class AuthFilter implements Filter {
     private static final Set<String> SECURED_PATHS = new HashSet<>();
 
     static {
-        SECURED_PATHS.add("/profile"); // Добавьте защищённые пути
+        SECURED_PATHS.add("/profile");
+        SECURED_PATHS.add("/createPost");
+        SECURED_PATHS.add("/main");
     }
 
     @Override

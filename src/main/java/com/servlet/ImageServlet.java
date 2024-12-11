@@ -16,16 +16,14 @@ public class ImageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String relativePath = req.getPathInfo(); // Получаем часть пути после /uploads/
+        String relativePath = req.getPathInfo();
         if (relativePath == null || relativePath.equals("/")) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid image path");
             return;
         }
 
-        // Абсолютный путь к директории загрузок
         String uploadDirPath = "/Users/anastasia/IdeaProjects/SemesterWork2/target/SemesterWork2/uploads";
 
-        // Формируем полный путь к файлу
         Path filePath = Paths.get(uploadDirPath, relativePath);
 
         if (!Files.exists(filePath) || !Files.isReadable(filePath)) {
@@ -33,14 +31,12 @@ public class ImageServlet extends HttpServlet {
             return;
         }
 
-        // Устанавливаем тип контента
         String mimeType = getServletContext().getMimeType(filePath.toString());
         if (mimeType == null) {
             mimeType = "application/octet-stream";
         }
         resp.setContentType(mimeType);
 
-        // Отправляем файл
         try (OutputStream out = resp.getOutputStream()) {
             Files.copy(filePath, out);
         }

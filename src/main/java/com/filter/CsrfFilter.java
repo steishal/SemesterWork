@@ -6,9 +6,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.UUID;
 import com.utils.CsrfToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 @WebFilter("/*")
 public class CsrfFilter extends HttpFilter {
 
-    private static final Logger logger = LogManager.getLogger(CsrfFilter.class); // Инициализация логгера
+    private static final Logger logger = LogManager.getLogger(CsrfFilter.class);
     private final CsrfToken csrfTokenService = new CsrfToken();
 
     @Override

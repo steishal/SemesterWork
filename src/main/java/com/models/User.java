@@ -3,7 +3,6 @@ package com.models;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
 import java.util.ArrayList;
 import java.util.Objects;
 

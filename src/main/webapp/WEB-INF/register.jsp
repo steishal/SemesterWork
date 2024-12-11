@@ -58,7 +58,6 @@
 <h2>Register</h2>
 <form action="${pageContext.request.contextPath}/register" method="POST" novalidate>
   <input type="hidden" name="csrf_token" value="${csrf_token}">
-  <!-- Username -->
   <label for="username">Username:</label>
   <input
           type="text"
@@ -70,7 +69,6 @@
           pattern="^[a-zA-Z0-9_]+$"
           title="Username must be 3-20 characters long and contain only letters, numbers, and underscores.">
 
-  <!-- Password -->
   <label for="password">Password:</label>
   <input
           type="password"
@@ -80,7 +78,6 @@
           minlength="6"
           title="Password must be at least 6 characters long.">
 
-  <!-- Email -->
   <label for="email">Email:</label>
   <input
           type="email"
@@ -89,7 +86,6 @@
           required
           title="Enter a valid email address.">
 
-  <!-- Phone -->
   <label for="phone">Phone Number:</label>
   <input
           type="tel"
@@ -99,7 +95,6 @@
           pattern="\+?[0-9]{10,15}"
           title="Enter a valid phone number with 10-15 digits. You can start with '+'.">
 
-  <!-- VK Link -->
   <label for="vkLink">VK Link:</label>
   <input
           type="url"
@@ -108,7 +103,6 @@
           pattern="https?://.*"
           title="Enter a valid URL starting with http:// or https://">
 
-  <!-- Telegram Link -->
   <label for="tgLink">Telegram Link:</label>
   <input
           type="url"
@@ -117,21 +111,18 @@
           pattern="https?://.*"
           title="Enter a valid URL starting with http:// or https://">
 
-  <!-- Submit Button -->
   <button type="submit">Register</button>
 
-  <!-- Error Message (if any) -->
   <div class="error">
     <%= request.getAttribute("error") != null ? request.getAttribute("error") : "" %>
   </div>
 </form>
 
-<!-- Script for client-side validation -->
 <script>
   document.querySelector('form').addEventListener('submit', function(event) {
     const form = event.target;
     if (!form.checkValidity()) {
-      event.preventDefault(); // Останавливает отправку формы, если есть ошибки
+      event.preventDefault();
       alert('Please fill out the form correctly before submitting.');
     }
   });

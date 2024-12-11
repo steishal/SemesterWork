@@ -8,26 +8,21 @@
   <name>SemesterWork2 Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
-    <!-- Servlet + EJB Lite + JPA + JSP + EL + JSTL + JSF + JTA + JSR-45 + JSR-250 -->
     <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-web-api</artifactId>
       <version>8.0.1</version>
       <scope>provided</scope>
     </dependency>
-    <!-- For Tomcat and other not full App Servers. Comment this up if you're using Glassfish. -->
-    <!-- See: https://stackoverflow.com/questions/4928271/how-to-install-jstl-the-absolute-uri-http-java-sun-com-jstl-core-cannot-be-r -->
-    <!-- HikariCP -->
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
-      <version>5.0.1</version> <!-- Убедитесь, что это актуальная версия -->
+      <version>5.0.1</version>
     </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.36</version> <!-- последняя стабильная версия SLF4J API -->
+      <version>1.7.36</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -49,24 +44,22 @@
       <artifactId>jbcrypt</artifactId>
       <version>0.4</version>
     </dependency>
-
     <dependency>
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
       <version>1.6.2</version>
     </dependency>
-
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.2</version>
     </dependency>
-      <dependency>
-          <groupId>org.projectlombok</groupId>
-          <artifactId>lombok</artifactId>
-          <version>1.18.28</version>
-          <scope>provided</scope>
-      </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.28</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
@@ -90,13 +83,12 @@
       <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.29</version> <!-- Убедитесь, что версия актуальна -->
+      <version>8.0.29</version>
     </dependency>
   </dependencies>
   <build>
     <finalName>SemesterWork2</finalName>
     <plugins>
-      <!-- Maven WAR Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>

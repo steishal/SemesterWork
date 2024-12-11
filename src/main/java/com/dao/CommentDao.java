@@ -3,54 +3,90 @@ package com.dao;
 import com.models.Comment;
 import com.utils.ConnectionProvider;
 import com.utils.DbException;
-
+import com.models.Like;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommentDao {
+
     private final ConnectionProvider connectionProvider;
 
     public CommentDao(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
     }
 
-    // Метод для добавления комментария
     public void addComment(Comment comment) throws DbException {
         String sql = "INSERT INTO Comments (post_id, user_id, content) VALUES (?, ?, ?)";
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setString(1, comment.getPostId());
-            preparedStatement.setString(2, comment.getAuthorId());
-            preparedStatement.setString(3, comment.getContent());
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new DbException("Error while adding comment", e);
-        }
-    }
-
-    // Метод для получения комментария по ID
-    public Comment getCommentById(String commentId) throws DbException {
-        String sql = "SELECT * FROM Comments WHERE comment_id = ?";
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setString(1, commentId);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapResultSetToComment(resultSet);
-                }
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, comment.getPostId());
+                preparedStatement.setString(2, comment.getAuthorId());
+                preparedStatement.setString(3, comment.getContent());
+                preparedStatement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while adding comment", e);
+            } finally {
+                connection.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            throw new DbException("Error while fetching comment by ID", e);
+            throw new DbException("Error while managing transaction for adding comment", e);
         }
-        return null; // Комментарий не найден
     }
 
-    // Метод для получения всех комментариев к посту
+    public Comment getCommentById(String commentId) throws DbException {
+        String sql = "SELECT * FROM Comments WHERE comment_id = ?";
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, commentId);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        connection.commit();
+                        return mapResultSetToComment(resultSet);
+                    }
+                }
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while fetching comment by ID", e);
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error while managing transaction for fetching comment by ID", e);
+        }
+        return null;
+    }
+
+    private String getAuthorNameById(String authorId) throws DbException {
+        String sql = "SELECT name FROM Users WHERE user_id = ?";
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, authorId);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        connection.commit();
+                        return resultSet.getString("name");
+                    }
+                }
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while fetching author name by ID", e);
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error while managing transaction for fetching author name", e);
+        }
+        return null;
+    }
+
     public List<Comment> getCommentsByPostId(String postId) throws DbException {
         String sql = "SELECT c.comment_id, c.post_id, c.user_id, c.content, c.created_at, u.name AS author_name " +
                 "FROM Comments c " +
@@ -59,97 +95,138 @@ public class CommentDao {
                 "ORDER BY c.created_at DESC";
 
         List<Comment> comments = new ArrayList<>();
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setString(1, postId);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    Comment comment = mapResultSetToComment(resultSet);
-
-                    // Устанавливаем имя автора
-                    comment.setAuthorId(resultSet.getString("author_name"));
-
-                    comments.add(comment);
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, postId);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        Comment comment = new Comment();
+                        comment.setId(resultSet.getString("comment_id"));
+                        comment.setPostId(resultSet.getString("post_id"));
+                        comment.setAuthorId(resultSet.getString("user_id"));
+                        comment.setContent(resultSet.getString("content"));
+                        comment.setCreateDate(resultSet.getString("created_at"));
+                        comment.setAuthorName(resultSet.getString("author_name"));
+                        comments.add(comment);
+                    }
                 }
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while fetching comments for post", e);
+            } finally {
+                connection.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            throw new DbException("Error while fetching comments for post", e);
+            throw new DbException("Error while managing transaction for fetching comments", e);
         }
         return comments;
     }
 
+    public List<Like> getLikesByPostId(String postId) throws DbException {
+        String sql = "SELECT like_id, post_id, user_id FROM Likes WHERE post_id = ?";
 
-    // Метод для обновления комментария
+        List<Like> likes = new ArrayList<>();
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, postId);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        Like like = new Like();
+                        like.setId(resultSet.getInt("like_id"));
+                        like.setPostId(resultSet.getInt("post_id"));
+                        like.setUserId(resultSet.getInt("user_id"));
+                        likes.add(like);
+                    }
+                }
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while fetching likes for post", e);
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error while managing transaction for fetching likes", e);
+        }
+        return likes;
+    }
+
     public void updateComment(Comment comment) throws DbException {
         String sql = "UPDATE Comments SET content = ? WHERE comment_id = ?";
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setString(1, comment.getContent());
-            preparedStatement.setString(2, comment.getId());
-            preparedStatement.executeUpdate();
-
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, comment.getContent());
+                preparedStatement.setString(2, comment.getId());
+                preparedStatement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while updating comment", e);
+            } finally {
+                connection.setAutoCommit(true);
+            }
         } catch (SQLException e) {
-            throw new DbException("Error while updating comment", e);
+            throw new DbException("Error while managing transaction for updating comment", e);
         }
     }
 
-    // Метод для удаления комментария
     public void deleteComment(String commentId) throws DbException {
         String sql = "DELETE FROM Comments WHERE comment_id = ?";
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setString(1, commentId);
-            preparedStatement.executeUpdate();
-
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, commentId);
+                preparedStatement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while deleting comment", e);
+            } finally {
+                connection.setAutoCommit(true);
+            }
         } catch (SQLException e) {
-            throw new DbException("Error while deleting comment", e);
+            throw new DbException("Error while managing transaction for deleting comment", e);
         }
     }
 
     public void updateCommentContent(String commentId, String newContent) throws DbException {
         String sql = "UPDATE Comments SET content = ? WHERE comment_id = ?";
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setString(1, newContent);
-            preparedStatement.setString(2, commentId);
-
-            int rowsUpdated = preparedStatement.executeUpdate();
-            if (rowsUpdated == 0) {
-                throw new DbException("No comment found with ID: " + commentId);
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, newContent);
+                preparedStatement.setString(2, commentId);
+                int rowsUpdated = preparedStatement.executeUpdate();
+                if (rowsUpdated == 0) {
+                    throw new DbException("No comment found with ID: " + commentId);
+                }
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error updating comment content", e);
+            } finally {
+                connection.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            throw new DbException("Error updating comment content", e);
+            throw new DbException("Error while managing transaction for updating comment content", e);
         }
     }
 
-    // Приватный метод для преобразования ResultSet в объект Comment
-    private Comment mapResultSetToComment(ResultSet resultSet) throws SQLException {
+    private Comment mapResultSetToComment(ResultSet resultSet) throws SQLException, DbException {
         Comment comment = new Comment();
-        comment.setId(resultSet.getString("comment_id")); // Здесь мы используем setId, если в модели есть такой метод
+        comment.setId(resultSet.getString("comment_id"));
         comment.setPostId(resultSet.getString("post_id"));
         comment.setAuthorId(resultSet.getString("user_id"));
         comment.setContent(resultSet.getString("content"));
         comment.setCreateDate(resultSet.getString("created_at"));
 
-        // Вместо добавления поля автор, получаем имя автора по id
         String authorName = getAuthorNameById(resultSet.getString("user_id"));
-        comment.setAuthorName(authorName); // Устанавливаем имя автора
+        comment.setAuthorName(authorName);
         return comment;
     }
-
-    // Пример метода для получения имени автора по его ID (можно заменить на ваш метод)
-    private String getAuthorNameById(String authorId) {
-        // Здесь должна быть логика для получения имени автора по его ID, например:
-        // Получаем имя автора из базы данных или другого источника данных
-        // Для примера можно вернуть заглушку
-        return "Author Name"; // Реализуйте свою логику для получения имени по ID
-    }
-
-
 }
 

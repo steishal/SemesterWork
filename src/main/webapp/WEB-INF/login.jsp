@@ -66,7 +66,6 @@
             required
             title="Enter a valid email address.">
 
-    <!-- Password -->
     <label for="password">Password:</label>
     <input
             type="password"
@@ -76,21 +75,18 @@
             minlength="6"
             title="Password must be at least 6 characters long.">
 
-    <!-- Submit Button -->
     <button type="submit">Login</button>
 
-    <!-- Error Message (if any) -->
     <div class="error">
         <%= request.getAttribute("message") != null ? request.getAttribute("message") : "" %>
     </div>
 </form>
 
-<!-- Script for client-side validation -->
 <script>
     document.querySelector('form').addEventListener('submit', function(event) {
         const form = event.target;
         if (!form.checkValidity()) {
-            event.preventDefault(); // Останавливает отправку формы, если есть ошибки
+            event.preventDefault();
             alert('Please fill out the form correctly before submitting.');
         }
     });

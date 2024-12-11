@@ -19,18 +19,22 @@ public class UserDao {
 
     public User getUserByUsername(String username) throws DbException {
         String sql = "SELECT * FROM Users WHERE name = ?";
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setString(1, username);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapResultSetToUser(resultSet);
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, username);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        connection.commit();
+                        return mapResultSetToUser(resultSet);
+                    }
                 }
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while fetching user by username", e);
             }
         } catch (SQLException e) {
-            throw new DbException("Error while fetching user by username", e);
+            throw new DbException("Error while managing connection", e);
         }
         return null;
     }
@@ -85,18 +89,22 @@ public class UserDao {
 
     public User getUserById(int id) throws DbException {
         String sql = "SELECT * FROM Users WHERE user_id = ?";
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setInt(1, id);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapResultSetToUser(resultSet);
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setInt(1, id);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        connection.commit();
+                        return mapResultSetToUser(resultSet);
+                    }
                 }
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error fetching user by ID", e);
             }
         } catch (SQLException e) {
-            throw new DbException("Error fetching user by ID", e);
+            throw new DbException("Error while managing connection", e);
         }
         return null;
     }
@@ -104,15 +112,21 @@ public class UserDao {
     public List<User> getAllUsers() throws DbException {
         String sql = "SELECT * FROM Users";
         List<User> users = new ArrayList<>();
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                 ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            while (resultSet.next()) {
-                users.add(mapResultSetToUser(resultSet));
+                while (resultSet.next()) {
+                    users.add(mapResultSetToUser(resultSet));
+                }
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error fetching all users", e);
             }
         } catch (SQLException e) {
-            throw new DbException("Error fetching all users", e);
+            throw new DbException("Error while managing connection", e);
         }
         return users;
     }
@@ -201,17 +215,22 @@ public class UserDao {
     public List<Integer> getFollowers(int userId) throws DbException {
         String sql = "SELECT follower_id FROM Follows WHERE followed_id = ?";
         List<Integer> followers = new ArrayList<>();
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setInt(1, userId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    followers.add(resultSet.getInt("follower_id"));
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);  // Start a transaction
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setInt(1, userId);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        followers.add(resultSet.getInt("follower_id"));
+                    }
                 }
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error fetching followers", e);
             }
         } catch (SQLException e) {
-            throw new DbException("Error fetching followers", e);
+            throw new DbException("Error while managing connection", e);
         }
         return followers;
     }
@@ -219,21 +238,25 @@ public class UserDao {
     public List<Integer> getSubscriptions(int userId) throws DbException {
         String sql = "SELECT followed_id FROM Follows WHERE follower_id = ?";
         List<Integer> subscriptions = new ArrayList<>();
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setInt(1, userId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    subscriptions.add(resultSet.getInt("followed_id"));
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setInt(1, userId);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        subscriptions.add(resultSet.getInt("followed_id"));
+                    }
                 }
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while fetching subscriptions", e);
             }
         } catch (SQLException e) {
-            throw new DbException("Error while fetching subscriptions", e);
+            throw new DbException("Error while managing connection", e);
         }
         return subscriptions;
     }
-
 }
 
 

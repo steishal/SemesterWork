@@ -18,21 +18,18 @@ public class InitListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {
-            // Инициализация ConnectionProvider
+
             connectionProvider = ConnectionProvider.getInstance();
 
-            // Создание экземпляров DAO и Service
             UserDao userDao = new UserDao(connectionProvider);
             UserService userService = new UserService(userDao);
             PostDao postDao = new PostDao(connectionProvider);
 
-            // Добавление объектов в контекст приложения
             ServletContext context = sce.getServletContext();
             context.setAttribute("userDao", userDao);
             context.setAttribute("userService", userService);
             context.setAttribute("postDao", postDao);
 
-            // Логгирование успешной инициализации
             System.out.println("userDao, userService, and postDao successfully added to ServletContext.");
         } catch (Exception e) {
             System.err.println("Error initializing application context: " + e.getMessage());
@@ -43,7 +40,6 @@ public class InitListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         try {
-            // Остановить фоновые потоки MySQL
             AbandonedConnectionCleanupThread.checkedShutdown();
         } catch (Throwable t) {
             t.printStackTrace();

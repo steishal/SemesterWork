@@ -15,7 +15,7 @@ public class LoggingFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-        // Здесь можно добавить инициализацию фильтра, если это необходимо
+
     }
 
     @Override
@@ -26,15 +26,13 @@ public class LoggingFilter implements Filter {
         String uri = httpRequest.getRequestURI();
         String clientIP = request.getRemoteAddr();
 
-        // Логируем начало обработки запроса
         logger.info("Метод: {}, URI: {}, Клиент: {}", method, uri, clientIP);
 
-        // Логируем заголовки запроса (без чувствительных данных)
         Enumeration<String> headerNames = httpRequest.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
             String headerValue = httpRequest.getHeader(headerName);
-            // Исключаем чувствительные данные, такие как Authorization
+
             if ("Authorization".equalsIgnoreCase(headerName)) {
                 logger.debug("Заголовок: {} = {}", headerName, "[REDACTED]");
             } else {
@@ -42,25 +40,21 @@ public class LoggingFilter implements Filter {
             }
         }
 
-        // Засекаем время выполнения запроса
         long startTime = System.currentTimeMillis();
         try {
-            // Передаем запрос и ответ через фильтр
             chain.doFilter(request, response);
         } catch (Exception e) {
-            // Логируем ошибку, если произошла
             logger.error("Ошибка при обработке запроса: {}, URI: {}", e.getMessage(), uri, e);
-            throw e;  // Пробрасываем ошибку дальше
+            throw e;
         }
         long duration = System.currentTimeMillis() - startTime;
 
-        // Логируем время, затраченное на обработку запроса
         logger.info("Запрос к {} обработан за {} мс", uri, duration);
     }
 
     @Override
     public void destroy() {
-        // Здесь можно освободить ресурсы или выполнить другие действия при уничтожении фильтра
+
     }
 }
 

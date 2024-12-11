@@ -4,7 +4,6 @@ import com.dao.PostDao;
 import com.dao.UserDao;
 import com.models.Post;
 import com.models.User;
-import com.utils.ConnectionProvider;
 import com.utils.DbException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -15,19 +14,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
+
 
 @WebServlet("/createPost")
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024 * 2, // 2 MB (порог, после которого файл сохраняется на диск)
-        maxFileSize = 1024 * 1024 * 10,      // 10 MB (максимальный размер файла)
-        maxRequestSize = 1024 * 1024 * 50    // 50 MB (максимальный размер всего запроса)
+        fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
 )
 public class CreatePostServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Перенаправляем пользователя на страницу createPost.jsp
         request.getRequestDispatcher("/WEB-INF/createPost.jsp").forward(request, response);
     }
 
@@ -42,7 +40,6 @@ public class CreatePostServlet extends HttpServlet {
         }
 
         try {
-            // Проверяем наличие параметров перед парсингом
             String content = request.getParameter("content");
             System.out.println("Content: " + request.getParameter("content"));
             String categoryIdStr = request.getParameter("categoryId");
@@ -59,7 +56,6 @@ public class CreatePostServlet extends HttpServlet {
 
             int categoryId = Integer.parseInt(categoryIdStr);
 
-            // Получаем изображения из запроса
             List<InputStream> imageStreams = new ArrayList<>();
             List<String> imageNames = new ArrayList<>();
 
@@ -95,16 +91,13 @@ public class CreatePostServlet extends HttpServlet {
             }
             String uploadDirPath = request.getServletContext().getRealPath("/uploads");
 
-            // Создаем объект `Post`
             Post post = new Post();
             post.setUserId(userId);
             post.setCategoryId(categoryId);
             post.setContent(content);
 
-            // Сохраняем данные в БД
             postDao.savePost(post, imageStreams, imageNames, uploadDirPath);
 
-            // Перенаправляем пользователя на страницу с успехом
             response.sendRedirect(request.getContextPath() + "/main");
 
         } catch (NumberFormatException e) {

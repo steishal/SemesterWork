@@ -2,10 +2,7 @@ package com.servlet;
 
 import com.dao.UserDao;
 import com.models.User;
-import com.service.UserService;
 import com.utils.DbException;
-
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -24,7 +21,7 @@ public class ProfileServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Получаем UserDao и UserService из контекста
+
         ServletContext context = getServletContext();
         UserDao userDao = (UserDao) context.getAttribute("userDao");
 

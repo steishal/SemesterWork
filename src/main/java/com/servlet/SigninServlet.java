@@ -5,7 +5,6 @@ import com.models.User;
 import com.service.UserService;
 import com.utils.DbException;
 import javax.servlet.http.*;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
