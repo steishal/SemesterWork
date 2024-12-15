@@ -53,30 +53,27 @@ public class LikeDao {
         String deleteSql = "DELETE FROM Likes WHERE post_id = ? AND user_id = ?";
         String insertSql = "INSERT INTO Likes (post_id, user_id) VALUES (?, ?)";
         try (Connection connection = connectionProvider.getConnection()) {
-            // Проверяем, существует ли лайк
             try (PreparedStatement checkStmt = connection.prepareStatement(checkSql)) {
                 checkStmt.setInt(1, postId);
                 checkStmt.setInt(2, userId);
                 try (ResultSet rs = checkStmt.executeQuery()) {
                     if (rs.next()) {
-                        // Если лайк существует, удаляем его
                         try (PreparedStatement deleteStmt = connection.prepareStatement(deleteSql)) {
                             deleteStmt.setInt(1, postId);
                             deleteStmt.setInt(2, userId);
                             deleteStmt.executeUpdate();
                         }
-                        return false; // Лайк удален
+                        return false;
                     }
                 }
             }
 
-            // Если лайка не существует, добавляем его
             try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
                 insertStmt.setInt(1, postId);
                 insertStmt.setInt(2, userId);
                 insertStmt.executeUpdate();
             }
-            return true; // Лайк добавлен
+            return true;
         } catch (SQLException e) {
             throw new DbException("Error toggling like", e);
         }
@@ -91,8 +88,7 @@ public class LikeDao {
                 preparedStatement.setInt(2, userId);
 
                 try (ResultSet rs = preparedStatement.executeQuery()) {
-                    boolean result = rs.next(); // Если строка найдена, значит лайк поставлен
-                    System.out.println("Like check result: " + result);
+                    boolean result = rs.next();
                     connection.commit();
                     return result;
                 }

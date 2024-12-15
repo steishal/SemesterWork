@@ -163,29 +163,6 @@ public class CommentDao {
         }
     }
 
-    public void updateCommentContent(String commentId, String newContent) throws DbException {
-        String sql = "UPDATE Comments SET content = ? WHERE comment_id = ?";
-        try (Connection connection = connectionProvider.getConnection()) {
-            connection.setAutoCommit(false);
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setString(1, newContent);
-                preparedStatement.setString(2, commentId);
-                int rowsUpdated = preparedStatement.executeUpdate();
-                if (rowsUpdated == 0) {
-                    throw new DbException("No comment found with ID: " + commentId);
-                }
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new DbException("Error updating comment content", e);
-            } finally {
-                connection.setAutoCommit(true);
-            }
-        } catch (SQLException e) {
-            throw new DbException("Error while managing transaction for updating comment content", e);
-        }
-    }
-
     private Comment mapResultSetToComment(ResultSet resultSet) throws SQLException, DbException {
         Comment comment = new Comment();
         comment.setId(resultSet.getString("comment_id"));

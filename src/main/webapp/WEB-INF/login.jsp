@@ -3,15 +3,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/registerlog_styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <c:import url="/WEB-INF/registerlog_styles.jsp" />
 </head>
 <body>
 <h2>Login</h2>
 <form action="${pageContext.request.contextPath}/login" method="POST" novalidate>
-    <input type="hidden" name="csrf_token" value="${csrf_token}">
     <label for="email">Email:</label>
     <input
             type="email"

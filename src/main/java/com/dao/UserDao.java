@@ -165,27 +165,6 @@ public class UserDao {
         }
     }
 
-    public User getUserByUsernameAndPassword(String username, String password) throws DbException {
-        String sql = "SELECT user_id, name, password_hash, email, phone_number, vk_link, telegram_link " +
-                "FROM Users WHERE name = ?";
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setString(1, username);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    String storedHash = resultSet.getString("password_hash");
-                    if (PasswordUtils.verifyPassword(password, storedHash)) {
-                        return mapResultSetToUser(resultSet);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new DbException("Error while getting user by username and password", e);
-        }
-        return null;
-    }
-
     public void followUser(int followerId, int followedId) throws DbException {
         String sql = "INSERT INTO Follows (follower_id, followed_id) VALUES (?, ?)";
         try (Connection connection = connectionProvider.getConnection();
@@ -231,7 +210,6 @@ public class UserDao {
         return false;
     }
 
-
     public int countFollowers(int userId) throws DbException {
         String sql = "SELECT COUNT(*) AS follower_count FROM Follows WHERE followed_id = ?";
         try (Connection connection = connectionProvider.getConnection();
@@ -272,7 +250,7 @@ public class UserDao {
         String sql = "SELECT follower_id FROM Follows WHERE followed_id = ?";
         List<Integer> followers = new ArrayList<>();
         try (Connection connection = connectionProvider.getConnection()) {
-            connection.setAutoCommit(false);  // Start a transaction
+            connection.setAutoCommit(false);
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatement.setInt(1, userId);
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -292,14 +270,14 @@ public class UserDao {
     }
 
     public List<Integer> getUserSubscriptions(int userId) throws DbException {
-        String sql = "SELECT followed_user_id FROM Subscriptions WHERE follower_user_id = ?";
+        String sql = "SELECT followed_id FROM Subscriptions WHERE follower_id = ?";
         List<Integer> subscriptions = new ArrayList<>();
         try (Connection connection = connectionProvider.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    subscriptions.add(resultSet.getInt("followed_user_id"));
+                    subscriptions.add(resultSet.getInt("followed_id"));
                 }
             }
         } catch (SQLException e) {
@@ -310,14 +288,12 @@ public class UserDao {
 
     public List<Integer> getFollowedUserIds(int userId) throws DbException {
         List<Integer> followedUserIds = new ArrayList<>();
-        String sql = "SELECT followed_id FROM Follows WHERE follower_id = ?"; // Замените на вашу таблицу подписок
+        String sql = "SELECT followed_id FROM Follows WHERE follower_id = ?";
         try (Connection connection = connectionProvider.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            // Устанавливаем параметр запроса
             preparedStatement.setInt(1, userId);
 
-            // Выполняем запрос
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
                     followedUserIds.add(rs.getInt("followed_id"));
@@ -330,30 +306,6 @@ public class UserDao {
             throw new DbException("Error getting followed users", e);
         }
         return followedUserIds;
-    }
-
-
-    public List<Integer> getSubscriptions(int userId) throws DbException {
-        String sql = "SELECT followed_id FROM Follows WHERE follower_id = ?";
-        List<Integer> subscriptions = new ArrayList<>();
-        try (Connection connection = connectionProvider.getConnection()) {
-            connection.setAutoCommit(false);
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setInt(1, userId);
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    while (resultSet.next()) {
-                        subscriptions.add(resultSet.getInt("followed_id"));
-                    }
-                }
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new DbException("Error while fetching subscriptions", e);
-            }
-        } catch (SQLException e) {
-            throw new DbException("Error while managing connection", e);
-        }
-        return subscriptions;
     }
 }
 

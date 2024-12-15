@@ -28,10 +28,7 @@ public class MainPageServlet extends HttpServlet {
         CommentDao commentDao = (CommentDao) context.getAttribute("commentDao");
         UserDao userDao = (UserDao) context.getAttribute("userDao");
         LikeDao likeDao = (LikeDao) context.getAttribute("likeDao");
-
-        // Получаем сессию
-        HttpSession session = req.getSession(false); // false - если сессия не существует, возвращает null
-        // Получаем текущего пользователя из сессии
+        HttpSession session = req.getSession(false);
         Integer userId = (Integer) session.getAttribute("userId");
         String username1 = (String) session.getAttribute("username");
 
@@ -50,7 +47,6 @@ public class MainPageServlet extends HttpServlet {
             List<Post> posts = postDao.getAllPosts();
 
             for (Post post : posts) {
-                // Получаем изображения для поста
                 try {
                     List<String> images = postDao.getImagesForPost(post.getId());
                     post.setImages(images);
@@ -59,38 +55,30 @@ public class MainPageServlet extends HttpServlet {
                     post.setImages(new ArrayList<>());
                 }
 
-                // Получаем лайки и комментарии
                 List<Like> likes = likeDao.getLikesByPostId(String.valueOf(post.getId()));
                 List<Comment> comments = commentDao.getCommentsByPostId(String.valueOf(post.getId()));
 
-                // Количество лайков и комментариев
                 int likeCount = (likes != null) ? likes.size() : 0;
                 int commentCount = (comments != null) ? comments.size() : 0;
 
-                // Получаем автора поста
                 User author = userDao.getUserById(post.getUserId());
                 String username = author.getUsername();
 
-                // Генерация ссылки на профиль
                 String profileUrl = req.getContextPath() + "/profile?id=" + author.getId();
 
-                // Устанавливаем атрибуты для JSP
                 req.setAttribute("likesCount" + post.getId(), likeCount);
                 req.setAttribute("commentsCount" + post.getId(), commentCount);
                 req.setAttribute("authorName" + post.getId(), username);
                 req.setAttribute("authorProfileUrl" + post.getId(), profileUrl);
             }
 
-            // Передаем посты в JSP
             req.setAttribute("posts", posts);
 
-            // Для каждого поста проверяем, поставил ли пользователь лайк
             for (Post post : posts) {
                 boolean userLiked = likeDao.isUserLiked(post.getId(), userId);
                 req.setAttribute("userLiked" + post.getId(), userLiked);
             }
 
-            // Отправляем данные в JSP
             req.getRequestDispatcher("/WEB-INF/main.jsp").forward(req, resp);
 
         } catch (DbException e) {
@@ -121,7 +109,6 @@ public class MainPageServlet extends HttpServlet {
         int userId = (Integer) session.getAttribute("userId");
 
         try {
-            // Тогглим лайк и возвращаем новое состояние
             boolean liked = likeDao.toggleLike(postId, userId);
             resp.getWriter().write("{\"liked\":" + liked + "}");
         } catch (DbException e) {

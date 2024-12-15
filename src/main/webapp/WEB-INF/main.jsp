@@ -7,19 +7,13 @@
 <html lang="ru">
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Главная страница</title>
-
-    <!-- Включаем стили -->
-    <c:import url="/WEB-INF/styles.jsp" />
 </head>
 <body>
-
-<!-- Включаем боковую панель -->
 <c:import url="/WEB-INF/sidebar.jsp" />
-
-<!-- Основной контент -->
 <div class="content">
     <h1>Главная</h1>
     <div>
