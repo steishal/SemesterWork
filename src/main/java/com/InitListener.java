@@ -1,5 +1,7 @@
 package com;
 
+import com.dao.CommentDao;
+import com.dao.LikeDao;
 import com.dao.PostDao;
 import com.dao.UserDao;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
@@ -9,6 +11,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import java.sql.Connection;
 
 
 @WebListener
@@ -24,9 +27,13 @@ public class InitListener implements ServletContextListener {
             UserDao userDao = new UserDao(connectionProvider);
             UserService userService = new UserService(userDao);
             PostDao postDao = new PostDao(connectionProvider);
+            CommentDao commentDao = new CommentDao(connectionProvider);
+            LikeDao likeDao = new LikeDao(connectionProvider);
 
             ServletContext context = sce.getServletContext();
             context.setAttribute("userDao", userDao);
+            context.setAttribute("likeDao", likeDao);
+            context.setAttribute("commentDao", commentDao);
             context.setAttribute("userService", userService);
             context.setAttribute("postDao", postDao);
 

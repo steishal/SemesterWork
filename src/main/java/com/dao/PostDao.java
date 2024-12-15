@@ -1,5 +1,6 @@
 package com.dao;
 
+import com.models.Like;
 import com.models.Post;
 import com.utils.ConnectionProvider;
 import com.utils.DbException;
@@ -65,6 +66,7 @@ public class PostDao {
             throw new DbException("Error managing transaction for validating category ID", e);
         }
     }
+
 
     public Post savePost(Post post, List<InputStream> imageStreams, List<String> imageNames, String uploadDirPath) throws DbException {
 
@@ -259,6 +261,54 @@ public class PostDao {
             throw new DbException("Error managing transaction for updating post", e);
         }
     }
+
+    public List<Like> getLikesByPostId(String postId) throws DbException {
+        String sql = "SELECT like_id, post_id, user_id FROM Likes WHERE post_id = ?";
+
+        List<Like> likes = new ArrayList<>();
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, postId);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        Like like = new Like();
+                        like.setId(resultSet.getInt("like_id"));
+                        like.setPostId(resultSet.getInt("post_id"));
+                        like.setUserId(resultSet.getInt("user_id"));
+                        likes.add(like);
+                    }
+                }
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DbException("Error while fetching likes for post", e);
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error while managing transaction for fetching likes", e);
+        }
+        return likes;
+    }
+
+    public List<Integer> getUserSubscriptions(int userId) throws DbException {
+        String sql = "SELECT followed_user_id FROM Subscriptions WHERE follower_user_id = ?";
+        List<Integer> subscriptions = new ArrayList<>();
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    subscriptions.add(resultSet.getInt("followed_user_id"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error fetching subscriptions", e);
+        }
+        return subscriptions;
+    }
+
 
     public void deletePost(int id, String uploadDirPath) throws DbException {
         String checkSql = "SELECT COUNT(*) FROM Posts WHERE post_id = ?";

@@ -51,12 +51,11 @@ public class SigninServlet extends HttpServlet {
             session.setAttribute("username", user.getUsername());
             session.setMaxInactiveInterval(24 * 60 * 60);
 
-            resp.sendRedirect(req.getContextPath() + "/profile");
+            resp.sendRedirect(req.getContextPath() + "/profile?id=" + user.getId());
         } catch (DbException e) {
             throw new ServletException("Ошибка при аутентификации пользователя", e);
         }
     }
-
 }
 
 

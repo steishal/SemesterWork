@@ -10,57 +10,6 @@
     <!-- Включаем стили -->
     <c:import url="/WEB-INF/styles.jsp" />
     <style>
-
-        .subscribe-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4680C2; /* Синий цвет как у ВК */
-            color: #ffffff; /* Белый текст */
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            border: none;
-            border-radius: 6px; /* Закругленные углы */
-            cursor: pointer;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .subscribe-btn:hover {
-            background-color: #3869A8; /* Темно-синий цвет при наведении */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень при наведении */
-        }
-
-        .subscribe-btn:active {
-            background-color: #2E4D7E; /* Цвет при нажатии */
-            box-shadow: none;
-        }
-
-        .unsubscribe-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #E3E3E3; /* Светло-серый цвет для "Отписаться" */
-            color: #000000; /* Черный текст */
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .unsubscribe-btn:hover {
-            background-color: #CCCCCC; /* Темно-серый цвет при наведении */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .unsubscribe-btn:active {
-            background-color: #B0B0B0; /* Цвет при нажатии */
-            box-shadow: none;
-        }
-
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f3f6f9;
@@ -183,23 +132,6 @@
         <p><strong>Ссылка VK:</strong> <a href="${user.vkLink}" target="_blank">${user.vkLink}</a></p>
         <p><strong>Ссылка Telegram:</strong> <a href="${user.tgLink}" target="_blank">${user.tgLink}</a></p>
     </div>
-    <c:if test="${myUserId != user.id}">
-        <form method="post" action="profile">
-            <input type="hidden" name="targetUserId" value="${user.id}">
-            <c:choose>
-                <c:when test="${isFollowing}">
-                    <button type="submit" name="action" value="unfollow" class="unsubscribe-btn">
-                        Отписаться
-                    </button>
-                </c:when>
-                <c:otherwise>
-                    <button type="submit" name="action" value="follow" class="subscribe-btn">
-                        Подписаться
-                    </button>
-                </c:otherwise>
-            </c:choose>
-        </form>
-    </c:if>
     <div class="subscriptions">
         <h2>Подписки</h2>
         <p>${subscriptionCount}</p>
@@ -209,6 +141,7 @@
         <h2>Подписчики</h2>
         <p>${followerCount}</p>
     </div>
+    <div class="create-post-btn" onclick="location.href='<c:url value='/createPost' />'">Создать пост</div>
 </div>
 
 <script>
@@ -229,12 +162,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-

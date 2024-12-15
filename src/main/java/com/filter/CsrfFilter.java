@@ -23,7 +23,7 @@ public class CsrfFilter extends HttpFilter {
             throws IOException, ServletException {
 
         String uri = req.getRequestURI();
-        if (uri.equals(req.getContextPath() + "/createPost")) {
+        if (uri.equals(req.getContextPath() + "/createPost") || uri.equals(req.getContextPath() + "/main") || uri.equals(req.getContextPath() + "/comments") || uri.equals(req.getContextPath() + "/follow") || uri.equals(req.getContextPath() + "/profile")) {
             chain.doFilter(req, res);
             return;
         }

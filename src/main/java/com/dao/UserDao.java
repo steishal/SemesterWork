@@ -212,6 +212,62 @@ public class UserDao {
         }
     }
 
+    public boolean isFollowing(int followerId, int followedId) throws DbException {
+        String sql = "SELECT COUNT(*) FROM Follows WHERE follower_id = ? AND followed_id = ?";
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, followerId);
+            preparedStatement.setInt(2, followedId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error checking follow status", e);
+        }
+        return false;
+    }
+
+
+    public int countFollowers(int userId) throws DbException {
+        String sql = "SELECT COUNT(*) AS follower_count FROM Follows WHERE followed_id = ?";
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("follower_count");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error counting followers", e);
+        }
+        return 0;
+    }
+
+    public int countSubscriptions(int userId) throws DbException {
+        String sql = "SELECT COUNT(*) AS subscription_count FROM Follows WHERE follower_id = ?";
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("subscription_count");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error counting subscriptions", e);
+        }
+        return 0;
+    }
+
     public List<Integer> getFollowers(int userId) throws DbException {
         String sql = "SELECT follower_id FROM Follows WHERE followed_id = ?";
         List<Integer> followers = new ArrayList<>();
@@ -234,6 +290,48 @@ public class UserDao {
         }
         return followers;
     }
+
+    public List<Integer> getUserSubscriptions(int userId) throws DbException {
+        String sql = "SELECT followed_user_id FROM Subscriptions WHERE follower_user_id = ?";
+        List<Integer> subscriptions = new ArrayList<>();
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    subscriptions.add(resultSet.getInt("followed_user_id"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DbException("Error fetching subscriptions", e);
+        }
+        return subscriptions;
+    }
+
+    public List<Integer> getFollowedUserIds(int userId) throws DbException {
+        List<Integer> followedUserIds = new ArrayList<>();
+        String sql = "SELECT followed_id FROM Follows WHERE follower_id = ?"; // Замените на вашу таблицу подписок
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            // Устанавливаем параметр запроса
+            preparedStatement.setInt(1, userId);
+
+            // Выполняем запрос
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                while (rs.next()) {
+                    followedUserIds.add(rs.getInt("followed_id"));
+                }
+            } catch (SQLException e) {
+                throw new DbException("Error reading the result set", e);
+            }
+
+        } catch (SQLException e) {
+            throw new DbException("Error getting followed users", e);
+        }
+        return followedUserIds;
+    }
+
 
     public List<Integer> getSubscriptions(int userId) throws DbException {
         String sql = "SELECT followed_id FROM Follows WHERE follower_id = ?";

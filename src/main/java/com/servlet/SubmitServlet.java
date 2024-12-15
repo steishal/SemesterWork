@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@WebServlet("/mypost")
-public class MyPostsServlet extends HttpServlet {
+@WebServlet("/submit")
+public class SubmitServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -49,11 +49,13 @@ public class MyPostsServlet extends HttpServlet {
         try {
             List<Post> posts = postDao.getAllPosts();
 
-            List<Post> userPosts = posts.stream()
-                    .filter(post -> post.getUserId() == userId)
+            List<Integer> followedUserIds = userDao.getFollowedUserIds(userId);
+
+            List<Post> filteredPosts = posts.stream()
+                    .filter(post -> followedUserIds.contains(post.getUserId())) // Проверяем, подписан ли пользователь на автора поста
                     .collect(Collectors.toList());
 
-            for (Post post : userPosts) {
+            for (Post post : filteredPosts) {
                 // Получаем изображения для поста
                 try {
                     List<String> images = postDao.getImagesForPost(post.getId());
@@ -86,10 +88,10 @@ public class MyPostsServlet extends HttpServlet {
             }
 
             // Передаем посты в JSP
-            req.setAttribute("posts", userPosts);
+            req.setAttribute("posts", filteredPosts);
 
             // Для каждого поста проверяем, поставил ли пользователь лайк
-            for (Post post : userPosts) {
+            for (Post post : filteredPosts) {
                 boolean userLiked = likeDao.isUserLiked(post.getId(), userId);
                 req.setAttribute("userLiked" + post.getId(), userLiked);
             }

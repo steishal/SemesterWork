@@ -18,7 +18,6 @@ public class AuthFilter implements Filter {
     static {
         SECURED_PATHS.add("/profile");
         SECURED_PATHS.add("/createPost");
-        SECURED_PATHS.add("/main");
     }
 
     @Override
@@ -30,7 +29,7 @@ public class AuthFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-
+        request.setCharacterEncoding("UTF-8");
         String path = req.getServletPath();
         HttpSession session = req.getSession(false);
 

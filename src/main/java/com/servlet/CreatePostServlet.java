@@ -19,8 +19,8 @@ import java.util.List;
 @WebServlet("/createPost")
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 2,
-        maxFileSize = 1024 * 1024 * 10,
-        maxRequestSize = 1024 * 1024 * 50
+        maxFileSize = 1024 * 1024 * 50,
+        maxRequestSize = 1024 * 1024 * 100
 )
 public class CreatePostServlet extends HttpServlet {
 
@@ -34,7 +34,6 @@ public class CreatePostServlet extends HttpServlet {
         ServletContext context = getServletContext();
         PostDao postDao = (PostDao) context.getAttribute("postDao");
         UserDao userDao = (UserDao) context.getAttribute("userDao");
-
         if (postDao == null) {
             throw new ServletException("PostDao is not initialized in the servlet context.");
         }

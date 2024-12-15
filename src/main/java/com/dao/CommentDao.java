@@ -124,36 +124,6 @@ public class CommentDao {
         return comments;
     }
 
-    public List<Like> getLikesByPostId(String postId) throws DbException {
-        String sql = "SELECT like_id, post_id, user_id FROM Likes WHERE post_id = ?";
-
-        List<Like> likes = new ArrayList<>();
-        try (Connection connection = connectionProvider.getConnection()) {
-            connection.setAutoCommit(false);
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setString(1, postId);
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    while (resultSet.next()) {
-                        Like like = new Like();
-                        like.setId(resultSet.getInt("like_id"));
-                        like.setPostId(resultSet.getInt("post_id"));
-                        like.setUserId(resultSet.getInt("user_id"));
-                        likes.add(like);
-                    }
-                }
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new DbException("Error while fetching likes for post", e);
-            } finally {
-                connection.setAutoCommit(true);
-            }
-        } catch (SQLException e) {
-            throw new DbException("Error while managing transaction for fetching likes", e);
-        }
-        return likes;
-    }
-
     public void updateComment(Comment comment) throws DbException {
         String sql = "UPDATE Comments SET content = ? WHERE comment_id = ?";
         try (Connection connection = connectionProvider.getConnection()) {
