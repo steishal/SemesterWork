@@ -24,12 +24,24 @@
         %>
         <div class="post-container">
             <div class="post-header">
-                <div>
-                    <a href="<%= request.getAttribute("authorProfileUrl" + post.getId()) %>" class="post-author-name"><%= request.getAttribute("authorName" + post.getId()) %></a>
-                    <p class="post-create-date"><%= post.getCreateDate() != null ? post.getCreateDate() : "Не указана" %></p>
+                <a href="<%= request.getAttribute("authorProfileUrl" + post.getId()) %>" class="post-author-name"><%= request.getAttribute("authorName" + post.getId()) %></a>
+                <% if (request.getAttribute("userId").equals(post.getUserId())) { %>
+                <div class="post-options">
+                    <div class="options-wrapper">
+                        <button class="options-button">⋮</button>
+                        <div class="options-menu">
+                            <a href="<%= request.getContextPath() + "/editPost?id=" + post.getId() %>">Редактировать</a>
+                            <hr class="menu-divider">
+                            <form action="<%= request.getContextPath() + "/deletePost" %>" method="POST">
+                                <input type="hidden" name="postId" value="<%= post.getId() %>">
+                                <button type="submit" class="delete-button">Удалить</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
+                <% } %>
             </div>
-
+            <p class="post-create-date"><%= post.getCreateDate() != null ? post.getCreateDate() : "Не указана" %></p>
             <div class="post-content">
                 <p><%= post.getContent() %></p>
                 <%
@@ -68,6 +80,38 @@
 
 
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.options-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation(); // Предотвращаем всплытие события
+                const menu = button.nextElementSibling;
+                toggleMenu(menu);
+            });
+        });
+
+        // Скрываем все меню при клике вне их
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.options-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        });
+    });
+
+    function toggleMenu(menu) {
+        // Скрываем другие меню
+        document.querySelectorAll('.options-menu').forEach(otherMenu => {
+            if (otherMenu !== menu) {
+                otherMenu.style.display = 'none';
+            }
+        });
+
+        // Переключаем текущее меню
+        if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+        } else {
+            menu.style.display = 'block';
+        }
+    }
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.like-button').forEach(button => {
             button.addEventListener('click', () => {

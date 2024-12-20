@@ -1,4 +1,7 @@
 .subscribe-btn {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 340px;
     display: inline-block;
     padding: 10px 20px;
     background-color: #4680C2; /* Синий цвет как у ВК */
@@ -24,6 +27,9 @@
 }
 
 .unsubscribe-btn {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 340px;
     display: inline-block;
     padding: 10px 20px;
     background-color: #E3E3E3; /* Светло-серый цвет для "Отписаться" */
@@ -56,6 +62,7 @@ body {
 }
 
 .content {
+    position: relative;
     max-width: 800px;
     margin: 20px auto;
     background: #fff;
@@ -91,19 +98,23 @@ body {
 
 .subscriptions, .followers {
     display: inline-block;
-    width: 45%;
-    margin: 10px 2%;
-    text-align: center;
+    width: 345px;
     background: #f7f9fc;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex: 1; /* Каждый блок занимает равную часть доступного пространства */
+    max-width: 45%; /* Максимальная ширина */
+    text-align: center; /* Текст по центру */
+    margin: 0 10px; /* Горизонтальные отступы */
 }
 
 .subscriptions h2, .followers h2 {
     font-size: 16px;
     margin-bottom: 8px;
     color: #333;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .subscriptions p, .followers p {
@@ -150,8 +161,14 @@ body {
     color: #555;
 }
 
-
-
 .post-actions i:hover {
     color: #4680c2;
+}
+
+.subscriptions-followers {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* Равномерно распределяет элементы */
+    align-items: center; /* Центрирует элементы по вертикали */
+    margin: 20px 0; /* Отступы сверху и снизу */
 }

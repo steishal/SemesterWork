@@ -15,10 +15,18 @@
 <div class="content">
     <div class="profile-card">
         <h1>${user.username}</h1>
-        <p><strong>Email:</strong> ${user.email}</p>
-        <p><strong>Телефон:</strong> ${user.phoneNumber}</p>
-        <p><strong>Ссылка VK:</strong> <a href="${user.vkLink}" target="_blank">${user.vkLink}</a></p>
-        <p><strong>Ссылка Telegram:</strong> <a href="${user.tgLink}" target="_blank">${user.tgLink}</a></p>
+        <c:if test="${not empty user.email}">
+            <p><strong>Email:</strong> ${user.email}</p>
+        </c:if>
+        <c:if test="${not empty user.phoneNumber}">
+            <p><strong>Телефон:</strong> ${user.phoneNumber}</p>
+        </c:if>
+        <c:if test="${not empty user.vkLink}">
+            <p><strong>Ссылка VK:</strong> <a href="${user.vkLink}" target="_blank">${user.vkLink}</a></p>
+        </c:if>
+        <c:if test="${not empty user.tgLink}">
+            <p><strong>Ссылка Telegram:</strong> <a href="${user.tgLink}" target="_blank">${user.tgLink}</a></p>
+        </c:if>
     </div>
     <div class="subscriptions">
         <h2>Подписки</h2>
