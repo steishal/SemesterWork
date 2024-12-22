@@ -322,7 +322,6 @@ public class PostDao {
             connection.setAutoCommit(false);
 
             try {
-                // Проверяем, существует ли пост
                 try (PreparedStatement checkStatement = connection.prepareStatement(checkSql)) {
                     checkStatement.setInt(1, id);
                     try (ResultSet resultSet = checkStatement.executeQuery()) {
@@ -332,7 +331,6 @@ public class PostDao {
                     }
                 }
 
-                // Получаем пути изображений
                 List<String> imagePaths = new ArrayList<>();
                 try (PreparedStatement selectImagesStatement = connection.prepareStatement(selectImagesSql)) {
                     selectImagesStatement.setInt(1, id);
@@ -343,39 +341,33 @@ public class PostDao {
                     }
                 }
 
-                // Удаляем записи изображений из базы данных, если они есть
                 if (!imagePaths.isEmpty()) {
                     try (PreparedStatement deleteImagesStatement = connection.prepareStatement(deleteImagesSql)) {
                         deleteImagesStatement.setInt(1, id);
                         deleteImagesStatement.executeUpdate();
                     }
 
-                    // Удаляем сами файлы изображений
                     Path uploadDir = Paths.get(uploadDirPath, String.valueOf(id));
                     for (String imagePath : imagePaths) {
                         Path filePath = uploadDir.resolve(imagePath);
                         try {
                             Files.deleteIfExists(filePath);
                         } catch (IOException e) {
-                            // Логируем ошибку, но не прерываем транзакцию
                             System.err.println("Failed to delete image file: " + filePath + " - " + e.getMessage());
                         }
                     }
                 }
 
-                // Удаляем лайки, связанные с постом
                 try (PreparedStatement deleteLikesStatement = connection.prepareStatement(deleteLikesSql)) {
                     deleteLikesStatement.setInt(1, id);
                     deleteLikesStatement.executeUpdate();
                 }
 
-                // Удаляем комментарии, связанные с постом
                 try (PreparedStatement deleteCommentsStatement = connection.prepareStatement(deleteCommentsSql)) {
                     deleteCommentsStatement.setInt(1, id);
                     deleteCommentsStatement.executeUpdate();
                 }
 
-                // Удаляем пост из базы данных
                 try (PreparedStatement deletePostStatement = connection.prepareStatement(deletePostSql)) {
                     deletePostStatement.setInt(1, id);
                     deletePostStatement.executeUpdate();
@@ -383,7 +375,6 @@ public class PostDao {
 
                 connection.commit();
             } catch (SQLException | DbException e) {
-                // Откатываем транзакцию в случае ошибки
                 connection.rollback();
                 throw new DbException("Error deleting post, transaction rolled back", e);
             }

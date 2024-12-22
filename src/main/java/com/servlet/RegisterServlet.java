@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import javax.servlet.ServletContext;
 
 @WebServlet("/register")
@@ -69,6 +70,8 @@ public class RegisterServlet extends HttpServlet {
         } catch (DbException | NoSuchAlgorithmException e) {
             req.setAttribute("error", "Ошибка при сохранении пользователя: " + e.getMessage());
             req.getRequestDispatcher("/WEB-INF/register.jsp").forward(req, resp);
+        } catch (InvalidKeySpecException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -70,7 +70,7 @@
             }
         } else {
         %>
-        <p class="no-posts">Посты не найдены</p>
+        <div class="no-posts">Посты не найдены</div>
         <%
             }
         %>
@@ -83,13 +83,11 @@
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.options-button').forEach(button => {
             button.addEventListener('click', (e) => {
-                e.stopPropagation(); // Предотвращаем всплытие события
+                e.stopPropagation();
                 const menu = button.nextElementSibling;
                 toggleMenu(menu);
             });
         });
-
-        // Скрываем все меню при клике вне их
         document.addEventListener('click', () => {
             document.querySelectorAll('.options-menu').forEach(menu => {
                 menu.style.display = 'none';
@@ -98,14 +96,12 @@
     });
 
     function toggleMenu(menu) {
-        // Скрываем другие меню
         document.querySelectorAll('.options-menu').forEach(otherMenu => {
             if (otherMenu !== menu) {
                 otherMenu.style.display = 'none';
             }
         });
 
-        // Переключаем текущее меню
         if (menu.style.display === 'block') {
             menu.style.display = 'none';
         } else {

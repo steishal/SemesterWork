@@ -3,7 +3,6 @@ package com.servlet;
 import com.dao.PostDao;
 import com.models.Post;
 import com.utils.DbException;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -13,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.lang.reflect.Type;
+
 
 @WebServlet("/editPost")
 @MultipartConfig(

@@ -25,7 +25,6 @@ public class ConnectionProvider {
             config.setConnectionTimeout(2000);
             config.setLeakDetectionThreshold(5000);
 
-            // Явно указываем драйвер
             config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
             dataSource = new HikariDataSource(config);

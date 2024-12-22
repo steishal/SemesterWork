@@ -6,12 +6,12 @@
   <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/registerlog_styles.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
+  <title>Регистрация</title>
 </head>
 <body>
-<h2>Register</h2>
+<h2>Регистрация</h2>
 <form action="${pageContext.request.contextPath}/register" method="POST" novalidate>
-  <label for="username">Username:</label>
+  <label for="username">Имя:</label>
   <input
           type="text"
           id="username"
@@ -22,7 +22,7 @@
           pattern="^[a-zA-Z0-9_]+$"
           title="Username must be 3-20 characters long and contain only letters, numbers, and underscores.">
 
-  <label for="password">Password:</label>
+  <label for="password">Пароль:</label>
   <input
           type="password"
           id="password"
@@ -31,7 +31,7 @@
           minlength="6"
           title="Password must be at least 6 characters long.">
 
-  <label for="email">Email:</label>
+  <label for="email">Почта:</label>
   <input
           type="email"
           id="email"
@@ -39,7 +39,7 @@
           required
           title="Enter a valid email address.">
 
-  <label for="phone">Phone Number:</label>
+  <label for="phone">Номер телефонаr:</label>
   <input
           type="tel"
           id="phone"
@@ -48,7 +48,7 @@
           pattern="\+?[0-9]{10,15}"
           title="Enter a valid phone number with 10-15 digits. You can start with '+'.">
 
-  <label for="vkLink">VK Link:</label>
+  <label for="vkLink">Ссылка на Вконтакте:</label>
   <input
           type="url"
           id="vkLink"
@@ -56,7 +56,7 @@
           pattern="https?://.*"
           title="Enter a valid URL starting with http:// or https://">
 
-  <label for="tgLink">Telegram Link:</label>
+  <label for="tgLink">Ссылка на телеграм:</label>
   <input
           type="url"
           id="tgLink"
@@ -64,7 +64,7 @@
           pattern="https?://.*"
           title="Enter a valid URL starting with http:// or https://">
 
-  <button type="submit">Register</button>
+  <button type="submit">Зарегистрироваться</button>
 
   <div class="error">
     <%= request.getAttribute("error") != null ? request.getAttribute("error") : "" %>

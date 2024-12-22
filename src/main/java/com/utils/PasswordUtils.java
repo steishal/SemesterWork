@@ -5,12 +5,20 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
+
 public class PasswordUtils {
 
-    private static final int SALT_LENGTH = 16; // Длина соли (в байтах)
-    private static final int ITERATIONS = 10000; // Количество итераций для повышения безопасности
+    private static final int SALT_LENGTH = 16; // длина соли в байтах
+    private static final int ITERATIONS = 10000; // количество итераций
+    private static final int KEY_LENGTH = 256; // длина ключа в битах
 
-    // Генерация случайной соли
+    // Генерация соли
     private static String generateSalt() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[SALT_LENGTH];
@@ -18,53 +26,40 @@ public class PasswordUtils {
         return Base64.getEncoder().encodeToString(salt);
     }
 
-    // Хэширование пароля с добавлением соли
-    public static String hashPassword(String password) throws NoSuchAlgorithmException {
-        // Генерация соли
+    // Хэширование пароля
+    public static String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         String salt = generateSalt();
-
-        // Соединяем соль с паролем
-        String saltedPassword = password + salt;
-
-        // Хэшируем с использованием SHA-256
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(saltedPassword.getBytes());
-
-        // Конвертируем хэш в строку
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hash) {
-            hexString.append(String.format("%02x", b));
-        }
-
-        // Возвращаем хэш и соль в одном значении, разделённые двоеточием
-        return hexString.toString() + ":" + salt;
+        byte[] hash = hashPasswordWithSalt(password, salt);
+        return Base64.getEncoder().encodeToString(hash) + ":" + salt;
     }
 
-    // Проверка пароля (сравнение введённого пароля с хранимым хэшем)
+    // Проверка пароля
     public static boolean verifyPassword(String inputPassword, String storedHash) {
         try {
-            // Разделяем хэш и соль
             String[] parts = storedHash.split(":");
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Invalid stored hash format");
+            }
             String storedPasswordHash = parts[0];
             String storedSalt = parts[1];
 
-            // Хэшируем введённый пароль с той же солью
-            String saltedInputPassword = inputPassword + storedSalt;
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(saltedInputPassword.getBytes());
+            byte[] inputHash = hashPasswordWithSalt(inputPassword, storedSalt);
+            String inputHashBase64 = Base64.getEncoder().encodeToString(inputHash);
 
-            // Конвертируем хэш в строку
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                hexString.append(String.format("%02x", b));
-            }
-
-            // Сравниваем хэши
-            return hexString.toString().equals(storedPasswordHash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error while hashing password", e);
+            return storedPasswordHash.equals(inputHashBase64);
+        } catch (Exception e) {
+            throw new RuntimeException("Error while verifying password", e);
         }
     }
+
+    // Вспомогательный метод для хэширования пароля с солью
+    private static byte[] hashPasswordWithSalt(String password, String salt)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), Base64.getDecoder().decode(salt), ITERATIONS, KEY_LENGTH);
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        return keyFactory.generateSecret(spec).getEncoded();
+    }
 }
+
 
 

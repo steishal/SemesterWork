@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/edit_post_styles.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/create_post_styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактирование поста</title>
@@ -12,17 +12,18 @@
 <div class="form-container">
     <h2>Редактировать пост</h2>
     <form action="${pageContext.request.contextPath}/editPost" method="POST" enctype="multipart/form-data">
-        <div class="form-group">
         <input type="hidden" id="id" name="id" value="${post.getId()}" required>
-        </div>
         <div class="form-group">
             <label for="content">Контент:</label>
             <textarea id="content" name="content" rows="4" required>${post.getContent()}</textarea>
         </div>
+
         <div class="form-group">
             <label for="categoryId">ID категории:</label>
             <input type="number" id="categoryId" name="categoryId" value="${post.getCategoryId()}" required>
         </div>
+
+        <!-- Поля для загрузки изображений -->
         <div class="form-group">
             <label for="image0">Изображение 1:</label>
             <input type="file" id="image0" name="image0">
@@ -60,4 +61,5 @@
 
 </body>
 </html>
+
 

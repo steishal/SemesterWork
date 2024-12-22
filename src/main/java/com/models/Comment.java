@@ -1,7 +1,7 @@
 package com.models;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Data
 @NoArgsConstructor

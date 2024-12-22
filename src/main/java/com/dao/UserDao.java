@@ -131,26 +131,44 @@ public class UserDao {
         return users;
     }
 
-    public void updateUser(User user) throws DbException {
-        String sql = "UPDATE Users SET name = ?, vk_link = ?, telegram_link = ?, email = ?, phone_number = ?, password_hash = ? WHERE user_id = ?";
+    public void updatePassword(int userId, String hashedPassword) throws DbException {
+        String sql = "UPDATE Users SET password_hash = ? WHERE user_id = ?";
+
         try (Connection connection = connectionProvider.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            String hashedPassword = PasswordUtils.hashPassword(user.getPassword());
+            preparedStatement.setString(1, hashedPassword);
+            preparedStatement.setInt(2, userId);
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+            if (rowsUpdated == 0) {
+                throw new DbException("Не удалось обновить пароль: пользователь с ID " + userId + " не найден.");
+            }
+        } catch (SQLException e) {
+            throw new DbException("Ошибка при обновлении пароля пользователя", e);
+        }
+    }
+
+
+    public void updateUser(User user) throws DbException {
+        String sql = "UPDATE Users SET name = ?, vk_link = ?, telegram_link = ?, email = ?, phone_number = ? WHERE user_id = ?";
+
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, user.getUsername());
             preparedStatement.setString(2, user.getVkLink());
             preparedStatement.setString(3, user.getTgLink());
             preparedStatement.setString(4, user.getEmail());
             preparedStatement.setString(5, user.getPhoneNumber());
-            preparedStatement.setString(6, hashedPassword);
-            preparedStatement.setInt(7, user.getId());
+            preparedStatement.setInt(6, user.getId());
 
             preparedStatement.executeUpdate();
-        } catch (SQLException | NoSuchAlgorithmException e) {
-            throw new DbException("Error updating user", e);
+        } catch (SQLException e) {
+            throw new DbException("Ошибка обновления пользователя", e);
         }
     }
+
 
     public void deleteUser(int id) throws DbException {
         String sql = "DELETE FROM Users WHERE user_id = ?";

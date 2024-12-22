@@ -14,6 +14,15 @@
 <c:import url="/WEB-INF/sidebar.jsp" />
 <div class="content">
     <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-actions">
+                <i class="fas fa-cog" onclick="toggleActionsMenu()"></i>
+                <div id="actions-menu" class="actions-menu" style="display: none;">
+                    <a href="<c:url value='/editProfile' />">Редактировать профиль</a>
+                    <a href="<c:url value='/confirmPassword' />">Настройки конфиденциальности</a>
+                </div>
+            </div>
+        </div>
         <h1>${user.username}</h1>
         <c:if test="${not empty user.email}">
             <p><strong>Email:</strong> ${user.email}</p>
@@ -41,6 +50,14 @@
 </div>
 
 <script>
+    function toggleActionsMenu() {
+        var actionsMenu = document.getElementById('actions-menu');
+        if (actionsMenu.style.display === 'none' || actionsMenu.style.display === '') {
+            actionsMenu.style.display = 'block';
+        } else {
+            actionsMenu.style.display = 'none';
+        }
+    }
     function toggleSidebar() {
         var sidebar = document.getElementById('sidebar');
         var content = document.getElementById('content');

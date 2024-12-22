@@ -3,7 +3,6 @@ package com.servlet;
 import com.dao.PostDao;
 import com.models.Post;
 import com.utils.DbException;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

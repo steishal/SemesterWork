@@ -21,16 +21,12 @@ public class ImageServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid image path");
             return;
         }
-
         String uploadDirPath = "/Users/anastasia/IdeaProjects/SemesterWork2/target/SemesterWork2/uploads";
-
         Path filePath = Paths.get(uploadDirPath, relativePath);
-
         if (!Files.exists(filePath) || !Files.isReadable(filePath)) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Image not found");
             return;
         }
-
         String mimeType = getServletContext().getMimeType(filePath.toString());
         if (mimeType == null) {
             mimeType = "application/octet-stream";

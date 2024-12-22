@@ -32,11 +32,7 @@ public class AuthFilter implements Filter {
         request.setCharacterEncoding("UTF-8");
         String path = req.getServletPath();
         HttpSession session = req.getSession(false);
-
-        // Проверяем наличие userId в сессии
         Object userId = (session != null) ? session.getAttribute("userId") : null;
-
-        // Если защищенный путь и пользователя нет в сессии, перенаправляем на страницу входа
         if (isSecuredPath(path) && userId == null) {
             logger.warning("Неавторизованный доступ к защищённому пути: " + path);
             res.sendRedirect(req.getContextPath() + "/login");

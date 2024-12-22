@@ -9,7 +9,6 @@ import com.models.Like;
 import com.models.Post;
 import com.models.User;
 import com.utils.DbException;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

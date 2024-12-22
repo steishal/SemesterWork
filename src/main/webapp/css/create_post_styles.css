@@ -50,7 +50,13 @@ h2 {
 }
 
 .form-group textarea {
-    resize: vertical;
+    resize: none;
+    overflow: auto;
+}
+textarea {
+    resize: none;
+    overflow: auto;
+    height: 350px;
 }
 
 .form-group button {

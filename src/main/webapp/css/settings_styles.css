@@ -1,0 +1,282 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f3f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    position: relative;
+    max-width: 800px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-card h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.profile-card p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.profile-card a {
+    color: #4680c2;
+    text-decoration: none;
+}
+
+.profile-card a:hover {
+    text-decoration: underline;
+}
+
+.post-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px;
+    border-top: 1px solid #e7e7e7;
+}
+
+.post-actions button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.post-actions i {
+    font-size: 18px;
+    color: #555;
+}
+
+.post-actions i:hover {
+    color: #4680c2;
+}
+
+.subscriptions-followers {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* Равномерно распределяет элементы */
+    align-items: center; /* Центрирует элементы по вертикали */
+    margin: 20px 0; /* Отступы сверху и снизу */
+}
+
+
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.profile-actions {
+    position: relative;
+    cursor: pointer;
+}
+
+.actions-menu {
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    width: 150px;
+    display: none;
+    border-radius: 5px;
+}
+
+.actions-menu a,
+.actions-menu form {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+}
+
+.actions-menu a:hover,
+.actions-menu .delete-button:hover {
+    background-color: #f0f0f0;
+}
+
+.delete-button {
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: left;
+    padding: 10px;
+    cursor: pointer;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f3f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    position: relative;
+    max-width: 800px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.profile-card h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.form-field {
+    margin-bottom: 20px;
+}
+
+.profile-card label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #555;
+}
+
+.profile-card input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #f7f9fc;
+}
+
+.create-post-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #4680c2;
+    color: #fff;
+    text-align: center;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 50%;
+}
+
+.create-post-btn:hover {
+    background-color: #326fa2;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f3f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    position: relative;
+    max-width: 800px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+
+.settings-form {
+    margin-top: 20px;
+}
+
+.form-field {
+    margin-bottom: 20px;
+}
+
+.settings-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #555;
+}
+
+.settings-form input {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #f7f9fc;
+    width: 97%;  /* Уменьшаем ширину полей ввода */
+    max-width: 800px;
+}
+
+
+.delete-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #f44336; /* Красный цвет для удаления */
+    color: #fff;
+    text-align: center;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 50%;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+.delete-btn:active {
+    background-color: #c62828;
+}
+
+.back-to-profile-btn {
+    display: inline-block;
+    margin-top: 20px;
+    margin-right: 300px;
+    padding: 10px 20px;
+    background-color: #4680c2; /* Цвет кнопки */
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.back-to-profile-btn:hover {
+    background-color: #326fa2; /* Темнее при наведении */
+}

@@ -222,3 +222,69 @@ body {
     cursor: pointer;
 }
 
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f3f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    position: relative;
+    max-width: 800px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.profile-card h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.form-field {
+    margin-bottom: 20px;
+}
+
+.profile-card label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #555;
+}
+
+.profile-card input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #f7f9fc;
+}
+
+.create-post-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #4680c2;
+    color: #fff;
+    text-align: center;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 50%;
+}
+
+.create-post-btn:hover {
+    background-color: #326fa2;
+}
