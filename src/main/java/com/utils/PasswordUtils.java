@@ -14,11 +14,10 @@ import java.util.Base64;
 
 public class PasswordUtils {
 
-    private static final int SALT_LENGTH = 16; // длина соли в байтах
-    private static final int ITERATIONS = 10000; // количество итераций
-    private static final int KEY_LENGTH = 256; // длина ключа в битах
+    private static final int SALT_LENGTH = 16;
+    private static final int ITERATIONS = 10000;
+    private static final int KEY_LENGTH = 256;
 
-    // Генерация соли
     private static String generateSalt() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[SALT_LENGTH];
@@ -26,14 +25,12 @@ public class PasswordUtils {
         return Base64.getEncoder().encodeToString(salt);
     }
 
-    // Хэширование пароля
     public static String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         String salt = generateSalt();
         byte[] hash = hashPasswordWithSalt(password, salt);
         return Base64.getEncoder().encodeToString(hash) + ":" + salt;
     }
 
-    // Проверка пароля
     public static boolean verifyPassword(String inputPassword, String storedHash) {
         try {
             String[] parts = storedHash.split(":");
@@ -52,7 +49,6 @@ public class PasswordUtils {
         }
     }
 
-    // Вспомогательный метод для хэширования пароля с солью
     private static byte[] hashPasswordWithSalt(String password, String salt)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), Base64.getDecoder().decode(salt), ITERATIONS, KEY_LENGTH);
