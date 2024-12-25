@@ -1,7 +1,9 @@
 package com.servlet;
 
+import com.dao.CategoryDao;
 import com.dao.PostDao;
 import com.dao.UserDao;
+import com.models.Category;
 import com.models.Post;
 import com.models.User;
 import com.utils.DbException;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 @WebServlet("/createPost")
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 2,
@@ -26,6 +29,17 @@ public class CreatePostServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        ServletContext context = getServletContext();
+        PostDao postDao = (PostDao) context.getAttribute("postDao");
+        UserDao userDao = (UserDao) context.getAttribute("userDao");
+        CategoryDao categoryDao = (CategoryDao) context.getAttribute("categoryDao");
+        List<Category> categories = null;
+        try {
+            categories = categoryDao.getAllCategories();
+        } catch (DbException e) {
+            throw new RuntimeException(e);
+        }
+        request.setAttribute("categories", categories);
         request.getRequestDispatcher("/WEB-INF/createPost.jsp").forward(request, response);
     }
 
@@ -34,6 +48,7 @@ public class CreatePostServlet extends HttpServlet {
         ServletContext context = getServletContext();
         PostDao postDao = (PostDao) context.getAttribute("postDao");
         UserDao userDao = (UserDao) context.getAttribute("userDao");
+        CategoryDao categoryDao = (CategoryDao) context.getAttribute("categoryDao");
         if (postDao == null) {
             throw new ServletException("PostDao is not initialized in the servlet context.");
         }

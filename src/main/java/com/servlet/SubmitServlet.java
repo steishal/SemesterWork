@@ -1,9 +1,6 @@
 package com.servlet;
 
-import com.dao.CommentDao;
-import com.dao.LikeDao;
-import com.dao.PostDao;
-import com.dao.UserDao;
+import com.dao.*;
 import com.models.Comment;
 import com.models.Like;
 import com.models.Post;
@@ -28,6 +25,7 @@ public class SubmitServlet extends HttpServlet {
         CommentDao commentDao = (CommentDao) context.getAttribute("commentDao");
         UserDao userDao = (UserDao) context.getAttribute("userDao");
         LikeDao likeDao = (LikeDao) context.getAttribute("likeDao");
+        CategoryDao categoryDao = (CategoryDao) context.getAttribute("categoryDao");
         HttpSession session = req.getSession(false);
         Integer userId = (Integer) session.getAttribute("userId");
         String username1 = (String) session.getAttribute("username");
@@ -64,12 +62,14 @@ public class SubmitServlet extends HttpServlet {
                 List<Comment> comments = commentDao.getCommentsByPostId(String.valueOf(post.getId()));
                 int likeCount = (likes != null) ? likes.size() : 0;
                 int commentCount = (comments != null) ? comments.size() : 0;
+                String category = categoryDao.getCategoryNameById(post.getCategoryId());
                 User author = userDao.getUserById(post.getUserId());
                 String username = author.getUsername();
                 String profileUrl = req.getContextPath() + "/profile?id=" + author.getId();
                 req.setAttribute("likesCount" + post.getId(), likeCount);
                 req.setAttribute("commentsCount" + post.getId(), commentCount);
                 req.setAttribute("authorName" + post.getId(), username);
+                req.setAttribute("category" + post.getId(), category);
                 req.setAttribute("authorProfileUrl" + post.getId(), profileUrl);
             }
 
@@ -79,7 +79,8 @@ public class SubmitServlet extends HttpServlet {
                 boolean userLiked = likeDao.isUserLiked(post.getId(), userId);
                 req.setAttribute("userLiked" + post.getId(), userLiked);
             }
-
+            String title = "Подписки";
+            req.setAttribute("title", title);
             req.getRequestDispatcher("/WEB-INF/main.jsp").forward(req, resp);
 
         } catch (DbException e) {

@@ -1,9 +1,6 @@
 package com;
 
-import com.dao.CommentDao;
-import com.dao.LikeDao;
-import com.dao.PostDao;
-import com.dao.UserDao;
+import com.dao.*;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import com.service.UserService;
 import com.utils.ConnectionProvider;
@@ -28,6 +25,7 @@ public class InitListener implements ServletContextListener {
             PostDao postDao = new PostDao(connectionProvider);
             CommentDao commentDao = new CommentDao(connectionProvider);
             LikeDao likeDao = new LikeDao(connectionProvider);
+            CategoryDao categoryDao = new CategoryDao(connectionProvider);
 
             ServletContext context = sce.getServletContext();
             context.setAttribute("userDao", userDao);
@@ -35,8 +33,7 @@ public class InitListener implements ServletContextListener {
             context.setAttribute("commentDao", commentDao);
             context.setAttribute("userService", userService);
             context.setAttribute("postDao", postDao);
-
-            System.out.println("userDao, userService, and postDao successfully added to ServletContext.");
+            context.setAttribute("categoryDao", categoryDao);
         } catch (Exception e) {
             System.err.println("Error initializing application context: " + e.getMessage());
             throw new RuntimeException("Error initializing application context", e);

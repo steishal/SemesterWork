@@ -16,7 +16,7 @@
     <div class="profile-card">
         <h1>${user.username}</h1>
         <c:if test="${not empty user.email}">
-            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Почта:</strong> ${user.email}</p>
         </c:if>
         <c:if test="${not empty user.phoneNumber}">
             <p><strong>Телефон:</strong> ${user.phoneNumber}</p>

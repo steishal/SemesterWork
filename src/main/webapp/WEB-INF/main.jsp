@@ -8,14 +8,15 @@
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная страница</title>
+    <title><%= request.getAttribute("title") %></title>
 </head>
 <body>
 <c:import url="/WEB-INF/sidebar.jsp" />
 <div class="content">
-    <h1>Главная</h1>
+    <div class="no-posts"><h1><%= request.getAttribute("title") %></h1></div>
     <div>
         <%
             List<Post> posts = (List<Post>) request.getAttribute("posts");
@@ -31,7 +32,6 @@
                         <button class="options-button">⋮</button>
                         <div class="options-menu">
                             <a href="<%= request.getContextPath() + "/editPost?id=" + post.getId() %>">Редактировать</a>
-                            <hr class="menu-divider">
                             <form action="<%= request.getContextPath() + "/deletePost" %>" method="POST">
                                 <input type="hidden" name="postId" value="<%= post.getId() %>">
                                 <button type="submit" class="delete-button">Удалить</button>
@@ -43,7 +43,7 @@
             </div>
             <p class="post-create-date"><%= post.getCreateDate() != null ? post.getCreateDate() : "Не указана" %></p>
             <div class="post-content">
-                <p><%= post.getContent() %></p>
+                <pre class="post-content"><%= post.getContent() %></pre>
                 <%
                     if (post.getImages() != null && !post.getImages().isEmpty()) {
                         for (String imgPath : post.getImages()) {
@@ -54,6 +54,7 @@
                     }
                 %>
             </div>
+            <p class="post-create-date">Категория: <%= request.getAttribute("category" + post.getId()) %></p>
             <div class="post-actions">
                 <button class="like-button" data-post-id="<%= post.getId() %>">
                     <i class="<%= (Boolean.TRUE.equals(request.getAttribute("userLiked" + post.getId()))) ? "fas fa-heart liked" : "far fa-heart" %>"></i>
@@ -70,7 +71,7 @@
             }
         } else {
         %>
-        <div class="no-posts">Посты не найдены</div>
+        <p class="no-posts">Посты не найдены</p>
         <%
             }
         %>
@@ -88,6 +89,7 @@
                 toggleMenu(menu);
             });
         });
+
         document.addEventListener('click', () => {
             document.querySelectorAll('.options-menu').forEach(menu => {
                 menu.style.display = 'none';

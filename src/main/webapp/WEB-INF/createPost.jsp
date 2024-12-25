@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="ru">
@@ -17,8 +18,12 @@
             <textarea id="content" name="content" rows="4" required placeholder="Введите текст вашего поста"></textarea>
         </div>
         <div class="form-group">
-            <label for="categoryId">ID категории:</label>
-            <input type="number" id="categoryId" name="categoryId" required>
+            <label for="categoryId">Выберите категорию:</label>
+            <select id="categoryId" name="categoryId" required>
+                <c:forEach var="category" items="${categories}">
+                    <option value="${category.categoryId}">${category.name}</option>
+                </c:forEach>
+            </select>
         </div>
         <div class="form-group">
             <label for="image0">Изображение 1:</label>
@@ -53,7 +58,6 @@
         });
     });
 </script>
-
 </body>
 </html>
 

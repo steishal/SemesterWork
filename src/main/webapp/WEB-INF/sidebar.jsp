@@ -7,5 +7,8 @@
   <a href="<c:url value='/main'/>">Главная</a>
   <a href="<c:url value='/mypost'/>">Мои посты</a>
   <a href="<c:url value='/submit'/>">Подписки</a>
+  <c:if test="${sessionScope.role == 'admin'}">
+    <a href="<c:url value='/admin'/>">Добавить категорию</a>
+  </c:if>
 </div>
 

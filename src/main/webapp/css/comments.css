@@ -89,3 +89,20 @@
     border-radius: 5px;
     margin-top: 10px;
 }
+
+.post-content {
+    margin-bottom: 12px;
+    word-wrap: break-word; /* Перенос длинных слов */
+    overflow-wrap: break-word; /* Для совместимости с различными браузерами */
+    font-size: 0.9rem;
+}
+
+.post-content pre {
+    margin: 0;
+    line-height: 1.5;
+    white-space: pre-wrap; /* Разрешить перенос строк в pre */
+    word-wrap: break-word; /* Переносить длинные слова */
+    overflow-wrap: break-word;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+}

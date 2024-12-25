@@ -20,10 +20,10 @@ body {
 }
 
 .post-container {
-    position: relative; /* Устанавливаем относительное позиционирование для контейнера */
+    position: relative;
     width: 600px;
     margin: 10px auto;
-    padding: 15px; /* Убираем лишние отступы слева */
+    padding: 15px;
     border: 1px solid #e1e1e1;
     border-radius: 10px;
     background-color: #fff;
@@ -66,7 +66,7 @@ a {
     padding: 0;
     display: flex;
     align-items: center;
-    color: #555; /* Цвет для иконки комментария */
+    color: #555;
 }
 
 .comment-button i {
@@ -75,10 +75,9 @@ a {
 }
 
 .comment-button i:hover {
-    color: #3498db; /* Голубой цвет при наведении */
+    color: #3498db;
 }
 
-/* Количество комментариев */
 .comments-count {
     font-size: 16px;
     margin-left: 5px;
@@ -91,11 +90,11 @@ a {
     color: white;
     position: fixed;
     top: 0;
-    left: -300px; /* Начальное скрытое состояние */
+    left: -300px;
     height: 100vh;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    transition: left 0.3s ease; /* Плавный переход */
+    transition: left 0.3s ease;
 }
 
 .sidebar h2 {
@@ -119,14 +118,16 @@ a {
     background-color: #2c7dc6;
 }
 
-h1{
+.no-posts{
+    display: flex;
     text-align: center;
+    justify-content: center;
 }
 .content {
     margin-left: 200px;
     padding: 10px;
     width: calc(100% - 270px);
-    transition: margin-left 0.3s ease; /* Плавный сдвиг контента */
+    transition: margin-left 0.3s ease;
 }
 
 .post-header {
@@ -157,12 +158,19 @@ h1{
 
 .post-content {
     margin-bottom: 12px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 0.9rem;
 }
 
-.post-content p {
+.post-content pre {
     margin: 0;
-    font-size: 1rem;
     line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
 }
 
 .post-image {
@@ -173,21 +181,21 @@ h1{
 
 .post-actions {
     display: flex;
-    flex-direction: row; /* Расположить элементы вертикально */
-    align-items: flex-start; /* Выровнять элементы по левому краю */
-    gap: 10px; /* Расстояние между элементами */
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
     font-size: 16px;
     color: #555;
-    position: absolute; /* Абсолютное позиционирование */
+    position: absolute;
     margin-top: 5px;
     position: relative;
     top: -5px;
 }
 
 .post-options {
-    position: absolute; /* Абсолютное позиционирование для блока с кнопкой */
-    top: 10px; /* Располагаем в верхней части блока */
-    right: 10px; /* Прижимаем к правому краю */
+    position: absolute;
+    top: 10px;
+    right: 10px;
     display: flex;
     flex-direction: column;
 }
@@ -208,14 +216,14 @@ h1{
 }
 
 .options-button:hover {
-    color: #4a76a8; /* Цвет при наведении */
+    color: #4a76a8;
 }
 
 .options-menu {
-    display: none; /* Скрываем меню по умолчанию */
+    display: none;
     position: absolute;
-    top: 100%; /* Позиция под кнопкой */
-    right: 0; /* Выравниваем относительно кнопки */
+    top: 100%;
+    right: 0;
     background-color: white;
     border: 1px solid #e1e1e1;
     border-radius: 5px;
@@ -253,4 +261,5 @@ h1{
     background-color: #e1e1e1;
     margin: 5px 0;
 }
+
 

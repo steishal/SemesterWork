@@ -49,6 +49,8 @@ public class SigninServlet extends HttpServlet {
             HttpSession session = req.getSession();
             session.setAttribute("userId", user.getId());
             session.setAttribute("username", user.getUsername());
+            session.setAttribute("role", user.getRole());
+            System.out.println(user.getRole());
             session.setMaxInactiveInterval(24 * 60 * 60);
 
             resp.sendRedirect(req.getContextPath() + "/profile?id=" + user.getId());

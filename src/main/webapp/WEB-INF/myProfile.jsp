@@ -20,6 +20,7 @@
                 <div id="actions-menu" class="actions-menu" style="display: none;">
                     <a href="<c:url value='/editProfile' />">Редактировать профиль</a>
                     <a href="<c:url value='/confirmPassword' />">Настройки конфиденциальности</a>
+                    <a href="<c:url value='/logout' />">Выйти из профиля</a>
                 </div>
             </div>
         </div>

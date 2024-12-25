@@ -18,8 +18,8 @@
           name="username"
           required
           minlength="3"
-          maxlength="20"
-          pattern="^[a-zA-Z0-9_]+$"
+          maxlength="40"
+          pattern="^[a-zA-Zа-яА-ЯёЁ0-9_ ]+$"
           title="Username must be 3-20 characters long and contain only letters, numbers, and underscores.">
 
   <label for="password">Пароль:</label>
@@ -39,7 +39,7 @@
           required
           title="Enter a valid email address.">
 
-  <label for="phone">Номер телефонаr:</label>
+  <label for="phone">Номер телефона:</label>
   <input
           type="tel"
           id="phone"

@@ -68,6 +68,7 @@ public class UserDao {
             preparedStatement.setString(4, user.getEmail());
             preparedStatement.setString(5, user.getPhoneNumber());
             preparedStatement.setString(6, user.getPassword());
+            preparedStatement.setString(7, user.getRole());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -84,6 +85,7 @@ public class UserDao {
         user.setTgLink(resultSet.getString("telegram_link"));
         user.setEmail(resultSet.getString("email"));
         user.setPhoneNumber(resultSet.getString("phone_number"));
+        user.setRole(resultSet.getString("role"));
         return user;
     }
 

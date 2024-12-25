@@ -62,10 +62,6 @@ public class RegisterServlet extends HttpServlet {
 
             userDao.saveUser(user);
 
-            Cookie userCookie = new Cookie("username", username);
-            userCookie.setMaxAge(60 * 60 * 24);
-            resp.addCookie(userCookie);
-
             resp.sendRedirect(req.getContextPath() + "/login");
         } catch (DbException | NoSuchAlgorithmException e) {
             req.setAttribute("error", "Ошибка при сохранении пользователя: " + e.getMessage());

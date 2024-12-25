@@ -14,6 +14,7 @@ public class User {
     private String password;
     private ArrayList<Integer> followers;
     private ArrayList<Integer> subscriptions;
+    private String role;
 
     @NonNull
     private String email = "";

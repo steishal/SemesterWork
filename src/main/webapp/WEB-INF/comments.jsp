@@ -11,14 +11,13 @@
 <body>
 <div class="post-section">
     <div class="post-header">
-        <img src="Avatar" alt="Avatar" class="post-author-avatar">
         <div>
             <h3>${postAuthor.username}</h3>
             <p>${post.getCreateDate()}</p>
         </div>
     </div>
     <div class="post-content">
-        <p>${post.content}</p>
+        <pre class="post-content">${post.content}</pre>
         <c:if test="${not empty post.images}">
             <c:forEach var="image" items="${post.images}">
                 <img src="${pageContext.request.contextPath}/uploads/${post.id}/${image}" alt="Image" class="post-image">

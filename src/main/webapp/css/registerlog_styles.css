@@ -53,3 +53,19 @@ button:hover {
     color: red;
     margin-top: 10px;
 }
+
+.reg_button{
+    text-align: center;
+    background-color: #f9f9f9;
+    color: #4CAF50;
+    border: none;
+    margin-top: 10px;
+    cursor: pointer;
+    padding: 8px;
+    font-size: 14px;
+    text-decoration: none;
+}
+.reg_button_div{
+    display: flex;
+    justify-content: center;
+}
