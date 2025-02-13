@@ -21,11 +21,10 @@ public class SigninServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ServletContext context = getServletContext();
-        UserDao userDao = (UserDao) context.getAttribute("userDao");
         UserService userService = (UserService) context.getAttribute("userService");
 
-        if (userDao == null || userService == null) {
-            throw new ServletException("userDao or userService are null in context.");
+        if (userService == null) {
+            throw new ServletException("UserService is null in context.");
         }
 
         String email = req.getParameter("email");
@@ -38,26 +37,20 @@ public class SigninServlet extends HttpServlet {
         }
 
         try {
-            User user = userDao.getUserByEmail(email);
-
-            if (user == null || !userService.verifyPassword(password, user.getPassword())) {
+            User user = userService.authenticate(email, password);
+            if (user == null) {
                 req.setAttribute("message", "Неверное имя пользователя или пароль.");
                 req.getRequestDispatcher("/WEB-INF/login.jsp").forward(req, resp);
                 return;
             }
 
-            HttpSession session = req.getSession();
-            session.setAttribute("userId", user.getId());
-            session.setAttribute("username", user.getUsername());
-            session.setAttribute("role", user.getRole());
-            System.out.println(user.getRole());
-            session.setMaxInactiveInterval(24 * 60 * 60);
-
+            userService.auth(user, req);
             resp.sendRedirect(req.getContextPath() + "/profile?id=" + user.getId());
-        } catch (DbException e) {
+        } catch (Exception e) {
             throw new ServletException("Ошибка при аутентификации пользователя", e);
         }
     }
+
 }
 
 

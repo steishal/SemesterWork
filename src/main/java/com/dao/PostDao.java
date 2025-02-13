@@ -292,24 +292,6 @@ public class PostDao {
         return likes;
     }
 
-    public List<Integer> getUserSubscriptions(int userId) throws DbException {
-        String sql = "SELECT followed_user_id FROM Subscriptions WHERE follower_user_id = ?";
-        List<Integer> subscriptions = new ArrayList<>();
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, userId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    subscriptions.add(resultSet.getInt("followed_user_id"));
-                }
-            }
-        } catch (SQLException e) {
-            throw new DbException("Error fetching subscriptions", e);
-        }
-        return subscriptions;
-    }
-
-
     public void deletePost(int id, String uploadDirPath) throws DbException {
         String checkSql = "SELECT COUNT(*) FROM Posts WHERE post_id = ?";
         String selectImagesSql = "SELECT image_path FROM PostImages WHERE post_id = ?";
@@ -384,4 +366,3 @@ public class PostDao {
     }
 
 }
-

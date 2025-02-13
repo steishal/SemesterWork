@@ -86,6 +86,4 @@ public class CategoryDao {
 
         return categoryName;
     }
-
-
 }

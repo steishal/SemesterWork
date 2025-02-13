@@ -31,7 +31,7 @@ public class DeleteProfile extends HttpServlet {
             } catch (DbException e) {
                 throw new RuntimeException(e);
             }
-            request.getSession().invalidate(); // Завершаем сессию пользователя
+            request.getSession().invalidate();
             response.sendRedirect(request.getContextPath() + "/login");
         } else {
             response.sendRedirect("/settings?error=incorrectPassword");

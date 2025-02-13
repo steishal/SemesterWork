@@ -4,7 +4,11 @@ import com.dao.UserDao;
 import com.models.User;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import com.utils.PasswordUtils;
+
+import java.util.Set;
 
 
 public class UserService {
@@ -21,29 +25,58 @@ public class UserService {
         }
     }
 
-    public void auth(User user, HttpServletRequest req, HttpServletResponse resp) {
-        req.getSession().setAttribute("authenticatedUser", user);
+    public User authenticate(String email, String password) {
+        try {
+            User user = userDao.getUserByEmail(email);
+            if (user != null && verifyPassword(password, user.getPassword())) {
+                return user;
+            }
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при аутентификации пользователя", e);
+        }
     }
 
-    public boolean isNonAnonymous(HttpServletRequest req, HttpServletResponse resp) {
-        return req.getSession(false) != null && req.getSession(false).getAttribute("authenticatedUser") != null;
+    public void auth(User user, HttpServletRequest req) {
+        HttpSession session = req.getSession(true);
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("username", user.getUsername());
+        session.setAttribute("role", user.getRole());
+        session.setMaxInactiveInterval(24 * 60 * 60);
     }
 
-    public User getUser(HttpServletRequest req, HttpServletResponse res) {
-        if (req.getSession(false) == null) {
+    public boolean isNonAnonymous(HttpServletRequest req) {
+        HttpSession session = req.getSession(false);
+        return session != null && session.getAttribute("userId") != null;
+    }
+
+    public User getUser(HttpServletRequest req) {
+        HttpSession session = req.getSession(false);
+        if (session == null) {
             return null;
         }
-        Object userObj = req.getSession(false).getAttribute("authenticatedUser");
-        if (userObj instanceof User) {
-            return (User) userObj;
+
+        Object userIdObj = session.getAttribute("userId");
+        if (userIdObj instanceof Integer) {
+            try {
+                return userDao.getUserById((Integer) userIdObj);
+            } catch (Exception e) {
+                throw new RuntimeException("Ошибка при получении пользователя из базы данных", e);
+            }
         }
         return null;
     }
 
     public void logout(HttpServletRequest req) {
-        if (req.getSession(false) != null) {
-            req.getSession(false).invalidate();
+        HttpSession session = req.getSession(false);
+        if (session != null) {
+            session.invalidate();
         }
+    }
+
+    public boolean isAdmin(HttpServletRequest req) {
+        User user = getUser(req);
+        return user != null && "admin".equalsIgnoreCase(user.getRole());
     }
 }
 

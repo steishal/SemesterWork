@@ -124,26 +124,6 @@ public class CommentDao {
         return comments;
     }
 
-    public void updateComment(Comment comment) throws DbException {
-        String sql = "UPDATE Comments SET content = ? WHERE comment_id = ?";
-        try (Connection connection = connectionProvider.getConnection()) {
-            connection.setAutoCommit(false);
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setString(1, comment.getContent());
-                preparedStatement.setString(2, comment.getId());
-                preparedStatement.executeUpdate();
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new DbException("Error while updating comment", e);
-            } finally {
-                connection.setAutoCommit(true);
-            }
-        } catch (SQLException e) {
-            throw new DbException("Error while managing transaction for updating comment", e);
-        }
-    }
-
     public void deleteComment(String commentId) throws DbException {
         String sql = "DELETE FROM Comments WHERE comment_id = ?";
         try (Connection connection = connectionProvider.getConnection()) {
@@ -176,4 +156,3 @@ public class CommentDao {
         return comment;
     }
 }
-

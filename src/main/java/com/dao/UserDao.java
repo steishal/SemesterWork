@@ -266,46 +266,6 @@ public class UserDao {
         return 0;
     }
 
-    public List<Integer> getFollowers(int userId) throws DbException {
-        String sql = "SELECT follower_id FROM Follows WHERE followed_id = ?";
-        List<Integer> followers = new ArrayList<>();
-        try (Connection connection = connectionProvider.getConnection()) {
-            connection.setAutoCommit(false);
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setInt(1, userId);
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    while (resultSet.next()) {
-                        followers.add(resultSet.getInt("follower_id"));
-                    }
-                }
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new DbException("Error fetching followers", e);
-            }
-        } catch (SQLException e) {
-            throw new DbException("Error while managing connection", e);
-        }
-        return followers;
-    }
-
-    public List<Integer> getUserSubscriptions(int userId) throws DbException {
-        String sql = "SELECT followed_id FROM Subscriptions WHERE follower_id = ?";
-        List<Integer> subscriptions = new ArrayList<>();
-        try (Connection connection = connectionProvider.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, userId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    subscriptions.add(resultSet.getInt("followed_id"));
-                }
-            }
-        } catch (SQLException e) {
-            throw new DbException("Error fetching subscriptions", e);
-        }
-        return subscriptions;
-    }
-
     public List<Integer> getFollowedUserIds(int userId) throws DbException {
         List<Integer> followedUserIds = new ArrayList<>();
         String sql = "SELECT followed_id FROM Follows WHERE follower_id = ?";
@@ -328,7 +288,3 @@ public class UserDao {
         return followedUserIds;
     }
 }
-
-
-
-
